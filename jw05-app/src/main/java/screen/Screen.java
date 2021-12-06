@@ -17,6 +17,8 @@
  */
 package screen;
 
+import world.*;
+
 import asciiPanel.AsciiPanel;
 import java.awt.event.KeyEvent;
 
@@ -25,8 +27,10 @@ import java.awt.event.KeyEvent;
  * @author Aeranythe Echosong
  */
 public interface Screen {
+    public static final int WIDTH = World.WIDTH;
+    public static final int HEIGHT = World.HEIGHT + 10;
 
-    public void displayOutput(AsciiPanel terminal);
+    public Screen displayOutput(AsciiPanel terminal);
 
     public Screen respondToUserInput(KeyEvent key);
 }

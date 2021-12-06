@@ -23,7 +23,8 @@ import java.awt.Point;
  *
  * @author Aeranythe Echosong
  */
-class CreatureAI {
+
+public class CreatureAI {
 
     protected Creature creature;
 
@@ -46,12 +47,15 @@ class CreatureAI {
                 * creature.visionRadius()) {
             return false;
         }
-        for (Point p : new Line(creature.x(), creature.y(), x, y)) {
+        /*for (Point p : new Line(creature.x(), creature.y(), x, y)) {
             if (creature.tile(p.x, p.y).isGround() || (p.x == x && p.y == y)) {
                 continue;
             }
             return false;
-        }
+        }*/
         return true;
+    }
+
+    public void run() {
     }
 }

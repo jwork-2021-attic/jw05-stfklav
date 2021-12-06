@@ -26,6 +26,9 @@ import asciiPanel.AsciiPanel;
 import screen.Screen;
 import screen.StartScreen;
 
+import  java.util.Timer;
+import java.util.TimerTask;
+
 /**
  *
  * @author Aeranythe Echosong
@@ -35,20 +38,34 @@ public class ApplicationMain extends JFrame implements KeyListener {
     private AsciiPanel terminal;
     private Screen screen;
 
-    public ApplicationMain() {
+    private Timer timer;// 计时器，固定频率刷新
+
+    public static final int REFRESH_LAG = 100;
+
+    public ApplicationMain(int mseconds) {
         super();
-        terminal = new AsciiPanel(80, 32, AsciiFont.TALRYTH_15_15);
+        terminal = new AsciiPanel(Screen.WIDTH, Screen.HEIGHT, AsciiFont.TALRYTH_15_15);
         add(terminal);
         pack();
         screen = new StartScreen();
         addKeyListener(this);
+
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                repaint();
+            }
+        }, 0, mseconds);
+
         repaint();
     }
+
 
     @Override
     public void repaint() {
         terminal.clear();
-        screen.displayOutput(terminal);
+        screen = screen.displayOutput(terminal);
         super.repaint();
     }
 
@@ -58,7 +75,7 @@ public class ApplicationMain extends JFrame implements KeyListener {
      */
     public void keyPressed(KeyEvent e) {
         screen = screen.respondToUserInput(e);
-        repaint();
+        //repaint();
     }
 
     /**
@@ -76,7 +93,7 @@ public class ApplicationMain extends JFrame implements KeyListener {
     }
 
     public static void main(String[] args) {
-        ApplicationMain app = new ApplicationMain();
+        ApplicationMain app = new ApplicationMain(REFRESH_LAG);// 100ms刷新一次，10Hz
         app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         app.setVisible(true);
     }

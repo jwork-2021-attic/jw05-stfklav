@@ -34,16 +34,30 @@ public class CreatureFactory {
     }
 
     public Creature newPlayer(List<String> messages) {
-        Creature player = new Creature(this.world, (char)2, AsciiPanel.brightWhite, 100, 20, 5, 9);
+        Creature player = new Creature(this.world, CreatureType.PLAYER, (char)2, AsciiPanel.brightWhite, 100, 20, 0, 5);
         world.addAtEmptyLocation(player);
         new PlayerAI(player, messages);
         return player;
     }
 
     public Creature newFungus() {
-        Creature fungus = new Creature(this.world, (char)3, AsciiPanel.green, 10, 0, 0, 0);
+        Creature fungus = new Creature(this.world, CreatureType.FUNGUS, (char)3, AsciiPanel.brightRed, 10, 0, 0, 0);
         world.addAtEmptyLocation(fungus);
         new FungusAI(fungus, this);
         return fungus;
+    }
+
+    public Creature newMedicine() {
+        Creature medicine = new Creature(this.world, CreatureType.MEDICINE, (char)8, AsciiPanel.green, 8, 0, 0, 0);
+        world.addAtEmptyLocation(medicine);
+        new MedicineAI(medicine, this);
+        return medicine;
+    }
+
+    public Creature newMonster() {
+        Creature monster = new Creature(this.world, CreatureType.MONSTER, (char)12, AsciiPanel.brightYellow, 50, 20, 5, 3);
+        world.addAtEmptyLocation(monster);
+        new MonsterAI(monster);
+        return monster;
     }
 }

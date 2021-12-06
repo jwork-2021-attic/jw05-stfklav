@@ -30,6 +30,8 @@ public class World {
     private Tile[][] tiles;
     private int width;
     private int height;
+    public static final int WIDTH = 40;
+    public static final int HEIGHT = 30;
     private List<Creature> creatures;
 
     public static final int TILE_TYPES = 2;
@@ -65,13 +67,20 @@ public class World {
         return height;
     }
 
-    public void dig(int x, int y) {
-        if (tile(x, y).isDiggable()) {
+    public void dig(int x, int y){
+        if(tile(x, y).isWall()){
             tiles[x][y] = Tile.FLOOR;
         }
     }
 
-    public void addAtEmptyLocation(Creature creature) {
+    public void setWall(int x, int y){
+        if(tile(x, y).isGround()){
+            // 是平地才能放墙
+            tiles[x][y] = Tile.WALL;
+        }
+    }
+
+    public synchronized void addAtEmptyLocation(Creature creature) {
         int x;
         int y;
 
@@ -86,7 +95,7 @@ public class World {
         this.creatures.add(creature);
     }
 
-    public Creature creature(int x, int y) {
+    public synchronized Creature creature(int x, int y) {
         for (Creature c : this.creatures) {
             if (c.x() == x && c.y() == y) {
                 return c;
@@ -99,11 +108,11 @@ public class World {
         return this.creatures;
     }
 
-    public void remove(Creature target) {
+    public synchronized void remove(Creature target) {
         this.creatures.remove(target);
     }
 
-    public void update() {
+    public synchronized void update() {
         ArrayList<Creature> toUpdate = new ArrayList<>(this.creatures);
 
         for (Creature creature : toUpdate) {

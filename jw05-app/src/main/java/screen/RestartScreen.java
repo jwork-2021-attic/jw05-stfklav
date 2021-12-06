@@ -27,7 +27,7 @@ import java.awt.event.KeyEvent;
 public abstract class RestartScreen implements Screen {
 
     @Override
-    public abstract void displayOutput(AsciiPanel terminal);
+    public abstract Screen displayOutput(AsciiPanel terminal);
 
     @Override
     public Screen respondToUserInput(KeyEvent key) {

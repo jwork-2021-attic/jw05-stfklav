@@ -23,7 +23,7 @@ import java.util.List;
  *
  * @author Aeranythe Echosong
  */
-public class PlayerAI extends CreatureAI {
+public class PlayerAI extends CreatureAI{
 
     private List<String> messages;
 
@@ -36,12 +36,16 @@ public class PlayerAI extends CreatureAI {
         if (tile.isGround()) {
             creature.setX(x);
             creature.setY(y);
-        } else if (tile.isDiggable()) {
-            creature.dig(x, y);
+        } else if(tile.isWall()){
+            this.creature.dig(x, y);
+            creature.setX(x);
+            creature.setY(y);
         }
     }
 
     public void onNotify(String message) {
         this.messages.add(message);
     }
+
+    
 }

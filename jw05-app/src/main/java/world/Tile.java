@@ -26,7 +26,7 @@ import java.awt.Color;
  */
 public enum Tile {
 
-    FLOOR((char) 250, AsciiPanel.green),
+    FLOOR((char) 250, AsciiPanel.brightWhite),
 
     WALL((char) 177, AsciiPanel.brightBlack),
 
@@ -44,12 +44,12 @@ public enum Tile {
         return color;
     }
 
-    public boolean isDiggable() {
-        return this != Tile.WALL;
-    }
-
     public boolean isGround() {
         return this != Tile.WALL && this != Tile.BOUNDS;
+    }
+
+    public boolean isWall(){
+        return this == Tile.WALL;
     }
 
     Tile(char glyph, Color color) {
