@@ -5,10 +5,13 @@ E:\Java project\jw05-stfklav\jw05-app\src\main\java\world\PlayerAI.java
 E:\Java project\jw05-stfklav\jw05-app\src\main\java\world\WorldBuilder.java
 E:\Java project\jw05-stfklav\jw05-app\src\main\java\screen\StartScreen.java
 E:\Java project\jw05-stfklav\jw05-app\src\main\java\screen\RestartScreen.java
-E:\Java project\jw05-stfklav\jw05-app\src\main\java\world\Line.java
 E:\Java project\jw05-stfklav\jw05-app\src\main\java\world\Creature.java
 E:\Java project\jw05-stfklav\jw05-app\src\main\java\screen\WinScreen.java
+E:\Java project\jw05-stfklav\jw05-app\src\main\java\world\MonsterAI.java
 E:\Java project\jw05-stfklav\jw05-app\src\main\java\world\World.java
+E:\Java project\jw05-stfklav\jw05-app\src\main\java\world\CreatureType.java
+E:\Java project\jw05-stfklav\jw05-app\src\main\java\world\MedicineAI.java
+E:\Java project\jw05-stfklav\jw05-app\src\main\java\world\AmplifierAI.java
 E:\Java project\jw05-stfklav\jw05-app\src\main\java\world\CreatureAI.java
 E:\Java project\jw05-stfklav\jw05-app\src\main\java\screen\Screen.java
 E:\Java project\jw05-stfklav\jw05-app\src\main\java\screen\LoseScreen.java
