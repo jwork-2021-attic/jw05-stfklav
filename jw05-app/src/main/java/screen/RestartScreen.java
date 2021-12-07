@@ -31,7 +31,7 @@ public abstract class RestartScreen implements Screen {
     protected static int medicine_num = 8;
     protected static int amplifier_num = 3;
 
-    protected int level = 0;
+    protected static int level = 0;
 
     @Override
     public abstract Screen displayOutput(AsciiPanel terminal);
