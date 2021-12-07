@@ -145,7 +145,11 @@ public class Creature implements Runnable{
     }
 
     public void dig(int wx, int wy){
-        this.modifyHP(-10);
+        if(this.type == CreatureType.PLAYER){
+            this.modifyHP(-10);
+        }else if(this.type == CreatureType.MONSTER){
+            this.modifyHP(-this.hp);
+        }
         world.dig(wx, wy);
     }
 

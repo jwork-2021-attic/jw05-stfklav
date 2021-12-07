@@ -30,8 +30,6 @@ public class MonsterAI extends CreatureAI{
             creature.setY(y);
         } else if(tile.isWall()){
             this.creature.dig(x, y);
-            creature.setX(x);
-            creature.setY(y);
         }
     }
 
