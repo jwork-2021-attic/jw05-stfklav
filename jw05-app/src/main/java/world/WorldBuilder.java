@@ -48,7 +48,7 @@ public class WorldBuilder {
                             tiles[width][height] = Tile.FLOOR;
                             break;
                         case 1:
-                            tiles[width][height] = Tile.WALL;
+                            tiles[width][height] = Tile.FLOOR;
                             break;
                     }
             }

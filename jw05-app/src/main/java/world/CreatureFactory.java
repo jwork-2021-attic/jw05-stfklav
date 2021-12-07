@@ -53,11 +53,17 @@ public class CreatureFactory {
         new MedicineAI(medicine, this);
         return medicine;
     }
+    public Creature newAmplifier() {
+        Creature amplifier = new Creature(this.world, CreatureType.AMPLIFIER, (char)15, AsciiPanel.brightBlue, 8, 0, 0, 0);
+        world.addAtEmptyLocation(amplifier);
+        new AmplifierAI(amplifier, this);
+        return amplifier;
+    }
 
-    public Creature newMonster() {
-        Creature monster = new Creature(this.world, CreatureType.MONSTER, (char)12, AsciiPanel.brightYellow, 50, 20, 5, 3);
+    public Creature newMonster(Creature player) {
+        Creature monster = new Creature(this.world, CreatureType.MONSTER, (char)12, AsciiPanel.brightYellow, 50, 20, 5, 8);
         world.addAtEmptyLocation(monster);
-        new MonsterAI(monster);
+        new MonsterAI(monster, this.world, player);
         return monster;
     }
 }

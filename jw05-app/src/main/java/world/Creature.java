@@ -18,7 +18,10 @@
 package world;
 
 import java.awt.Color;
+import java.awt.event.KeyEvent;
 
+import  java.util.Timer;
+import java.util.TimerTask;
 
 /**
  *
@@ -67,6 +70,16 @@ public class Creature implements Runnable{
         this.ai = ai;
     }
 
+    private int keyevent;
+
+    public void setKeyEvent(int k){
+        this.keyevent = k;
+    }
+
+    public int keyevent(){
+        return this.keyevent;
+    }
+
     private int maxHP;
 
     public int maxHP() {
@@ -109,6 +122,10 @@ public class Creature implements Runnable{
         return this.visionRadius;
     }
 
+    public void setVisionRadius(int vr){
+        this.visionRadius = vr;
+    }
+
     private CreatureType type; // 生物类型，和ai类型一一对应
 
     public CreatureType type(){
@@ -128,7 +145,7 @@ public class Creature implements Runnable{
     }
 
     public void dig(int wx, int wy){
-        hp -= 10;
+        this.modifyHP(-10);
         world.dig(wx, wy);
     }
 
@@ -150,7 +167,8 @@ public class Creature implements Runnable{
         }else{
             if(this.type == CreatureType.PLAYER){
                 // 只有玩家可以吃
-                if(other.type() == CreatureType.FUNGUS || other.type() == CreatureType.MEDICINE ){
+                if(other.type() == CreatureType.FUNGUS || other.type() == CreatureType.MEDICINE ||
+                other.type() == CreatureType.AMPLIFIER){
                     eat(other);
                     ai.onEnter(x + mx, y + my, world.tile(x + mx, y + my));
                 }else{
@@ -204,6 +222,18 @@ public class Creature implements Runnable{
         else if(other.type() == CreatureType.MEDICINE){
             this.behealed(other);
             world.remove(other);
+        }else if(other.type() == CreatureType.AMPLIFIER){
+            setVisionRadius(this.visionRadius * 2);
+            new Timer().schedule(new TimerTask() {
+
+                @Override
+                public void run() {
+                    // TODO Auto-generated method stub
+                    setVisionRadius(visionRadius / 2);
+                }
+                
+            }, 5000);
+            world.remove(other);
         }
         
     }
@@ -230,6 +260,7 @@ public class Creature implements Runnable{
         this.attackValue = attack;
         this.defenseValue = defense;
         this.visionRadius = visionRadius;
+        this.keyevent = KeyEvent.VK_ENTER;
     }
 
     @Override

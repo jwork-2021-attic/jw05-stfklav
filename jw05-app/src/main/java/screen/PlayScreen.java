@@ -40,11 +40,19 @@ public class PlayScreen implements Screen {
     private List<String> messages;
     private List<String> oldMessages;
     
-    private static final int MONSTER_NUMBER = 3;
-    private static final int FUNGUS_NUMBER = 10;
-    private static final int MEDICINE_NUMBER = 8;
+    private int MONSTER_NUMBER;
+    private int FUNGUS_NUMBER;
+    private int MEDICINE_NUMBER;
+    private int AMPLIFIER_NUMBER;
+    private int level;
  
-    public PlayScreen() {
+    public PlayScreen(int monster_num, int fungus_num, int medicine_num, int amplifier_num, int level) {
+        MONSTER_NUMBER = monster_num;
+        FUNGUS_NUMBER = fungus_num;
+        MEDICINE_NUMBER = medicine_num;
+        AMPLIFIER_NUMBER = amplifier_num;
+        this.level = level;
+
         createWorld();
         this.messages = new ArrayList<String>();
         this.oldMessages = new ArrayList<String>();
@@ -54,15 +62,23 @@ public class PlayScreen implements Screen {
     }
 
     private void createCreatures(CreatureFactory creatureFactory) {
-        this.player = creatureFactory.newPlayer(this.messages);
+        //this.player = creatureFactory.newPlayer(this.messages);
         
         // 开创线程池创造怪物
-        ExecutorService exec = Executors.newCachedThreadPool();
-        for (int i = 0; i < MONSTER_NUMBER; i++){
-            exec.execute(creatureFactory.newMonster());
-        }
-        exec.shutdown();
-
+        ExecutorService exec = Executors.newFixedThreadPool(MONSTER_NUMBER + 1);
+        this.player = creatureFactory.newPlayer(this.messages);
+        exec.execute(player);
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                // TODO Auto-generated method stub 
+                if(monsterremain() < MONSTER_NUMBER){
+                    exec.execute(creatureFactory.newMonster(player));
+                }
+            }
+            
+        }, 5000, 5000);
+        //exec.shutdown();
         
         for (int i = 0; i < FUNGUS_NUMBER; i++) {
             creatureFactory.newFungus();
@@ -70,6 +86,10 @@ public class PlayScreen implements Screen {
 
         for(int i = 0; i < MEDICINE_NUMBER; i++){
             creatureFactory.newMedicine();
+        }
+
+        for(int i = 0; i < AMPLIFIER_NUMBER; i++){
+            creatureFactory.newAmplifier();
         }
     }
 
@@ -82,6 +102,17 @@ public class PlayScreen implements Screen {
         int count = 0;
         for(Creature c: world.getCreatures()){
             if(c.type() == CreatureType.FUNGUS){
+                ++count;
+            }
+        }
+        return count;
+    }
+
+    // 统计剩余怪物数
+    private synchronized int monsterremain(){
+        int count = 0;
+        for(Creature c: world.getCreatures()){
+            if(c.type() == CreatureType.MONSTER){
                 ++count;
             }
         }
@@ -101,7 +132,8 @@ public class PlayScreen implements Screen {
         }
         // Show creatures
         for (Creature creature : world.getCreatures()) {
-            if(creature.type() == CreatureType.FUNGUS || creature.type() == CreatureType.MEDICINE){
+            if(creature.type() == CreatureType.FUNGUS || creature.type() == CreatureType.MEDICINE||
+            creature.type() == CreatureType.AMPLIFIER){
                 // 照亮才能看见
                 if (creature.x() >= 0 && creature.x() < World.WIDTH && creature.y() >= 0
                     && creature.y() < World.HEIGHT) {
@@ -123,7 +155,7 @@ public class PlayScreen implements Screen {
     }
 
     private void displayMessages(AsciiPanel terminal, List<String> messages) {
-        int top = World.HEIGHT + 2;
+        int top = World.HEIGHT + 5;
         for (int i = 0; i < messages.size(); i++) {
             terminal.write(messages.get(i), 1, top + i);
         }
@@ -141,11 +173,14 @@ public class PlayScreen implements Screen {
         // Player
         terminal.write(player.glyph(), player.x(), player.y(), player.color());
         // Stats
+        String levelstats = String.format("Level:%3d", this.level);
+        terminal.write(levelstats, 1, World.HEIGHT);
+
         String hpstats = String.format("%3d/%3d hp", player.hp(), player.maxHP());
-        terminal.write(hpstats, 1, World.HEIGHT);
+        terminal.write(hpstats, 1, World.HEIGHT + 2);
         
         String stats = String.format("Get%3d/%3d Hearts", FUNGUS_NUMBER - fungusremain(), FUNGUS_NUMBER);
-        terminal.write(stats, 1, World.HEIGHT + 1);
+        terminal.write(stats, 1, World.HEIGHT + 3);
         
         // Messages
         displayMessages(terminal, this.messages);
@@ -162,7 +197,8 @@ public class PlayScreen implements Screen {
 
     @Override
     public Screen respondToUserInput(KeyEvent key) {
-        switch (key.getKeyCode()) {
+        player.setKeyEvent(key.getKeyCode());
+        /*switch (key.getKeyCode()) {
             // 上下左右移动
             case KeyEvent.VK_LEFT:
                 player.moveBy(-1, 0);
@@ -189,7 +225,7 @@ public class PlayScreen implements Screen {
             case KeyEvent.VK_S:
                 player.setWall(0, 1);
                 break;
-        }
+        }*/
         return this;
     }
 

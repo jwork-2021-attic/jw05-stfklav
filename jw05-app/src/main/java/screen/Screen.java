@@ -27,7 +27,7 @@ import java.awt.event.KeyEvent;
  * @author Aeranythe Echosong
  */
 public interface Screen {
-    public static final int WIDTH = World.WIDTH;
+    public static final int WIDTH = World.WIDTH + 10;
     public static final int HEIGHT = World.HEIGHT + 10;
 
     public Screen displayOutput(AsciiPanel terminal);

@@ -3,6 +3,7 @@ package world;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /*
  * Copyright (C) 2015 Aeranythe Echosong
@@ -30,7 +31,7 @@ public class World {
     private Tile[][] tiles;
     private int width;
     private int height;
-    public static final int WIDTH = 40;
+    public static final int WIDTH = 30;
     public static final int HEIGHT = 30;
     private List<Creature> creatures;
 
@@ -81,19 +82,52 @@ public class World {
     }
 
     public synchronized void addAtEmptyLocation(Creature creature) {
-        int x;
-        int y;
+        int x = 0;
+        int y = 0;
 
-        do {
-            x = (int) (Math.random() * this.width);
-            y = (int) (Math.random() * this.height);
-        } while (!tile(x, y).isGround() || this.creature(x, y) != null);
+        if(creature.type() == CreatureType.MONSTER){
+            // 怪物从边上进来
+            Random rand = new Random();
+            switch (rand.nextInt(4)) {
+                case 0:
+                    do {
+                        x = (int) (Math.random() * this.width);
+                        y = 0;
+                    } while (!tile(x, y).isGround() || this.creature(x, y) != null);
+                    break;
+                case 1:
+                    do {
+                        x = (int) (Math.random() * this.width);
+                        y = this.height - 1;
+                    } while (!tile(x, y).isGround() || this.creature(x, y) != null);
+                    break;
+                case 3:
+                    do {
+                        x = 0;
+                        y = (int) (Math.random() * this.height);
+                    } while (!tile(x, y).isGround() || this.creature(x, y) != null);
+                break;
+                case 4:
+                    do {
+                        x = this.width - 1;
+                        y = (int) (Math.random() * this.height);
+                    } while (!tile(x, y).isGround() || this.creature(x, y) != null);
+                break;
+            }
+        }
+        else{
+            do {
+                x = (int) (Math.random() * this.width);
+                y = (int) (Math.random() * this.height);
+            } while (!tile(x, y).isGround() || this.creature(x, y) != null);
+        }
 
         creature.setX(x);
         creature.setY(y);
 
         this.creatures.add(creature);
     }
+
 
     public synchronized Creature creature(int x, int y) {
         for (Creature c : this.creatures) {

@@ -4,7 +4,8 @@ public enum CreatureType{
     PLAYER(),
     MONSTER(),
     FUNGUS(),
-    MEDICINE();
+    MEDICINE(),
+    AMPLIFIER();
     
     CreatureType(){
     }
