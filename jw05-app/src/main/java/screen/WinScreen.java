@@ -25,11 +25,12 @@ import asciiPanel.AsciiPanel;
  */
 public class WinScreen extends RestartScreen {
 
-    public WinScreen(){
+    public WinScreen() {
         ++monster_num;
         ++fungus_num;
         ++level;
     }
+
     @Override
     public Screen displayOutput(AsciiPanel terminal) {
         terminal.write("You won! ", 0, 0);
