@@ -1,57 +1,50 @@
-/*
- * Copyright (C) 2015 Aeranythe Echosong
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
 package screen;
 
 import world.*;
 import asciiPanel.AsciiPanel;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
+import javax.swing.JOptionPane;
+import javax.swing.text.AbstractDocument.BranchElement;
 
-import  java.util.Timer;
+import java.util.Timer;
 import java.util.TimerTask;
 
 /**
  *
  * @author Aeranythe Echosong
  */
-public class PlayScreen implements Screen {
+public class PlayScreen implements Screen, Serializable {
 
     private World world;
-    private Creature player;
+    private Creature player; // 玩家
+    private List<Creature> monsters; // 怪物
     private List<String> messages;
     private List<String> oldMessages;
-    
+
+    public boolean gameStatus; // 游戏是不是被暂停
+
     private int MONSTER_NUMBER;
     private int FUNGUS_NUMBER;
     private int MEDICINE_NUMBER;
     private int AMPLIFIER_NUMBER;
     private int level;
- 
+
     public PlayScreen(int monster_num, int fungus_num, int medicine_num, int amplifier_num, int level) {
         MONSTER_NUMBER = monster_num;
         FUNGUS_NUMBER = fungus_num;
         MEDICINE_NUMBER = medicine_num;
         AMPLIFIER_NUMBER = amplifier_num;
         this.level = level;
+
+        gameStatus = true;
+
+        monsters = new ArrayList<Creature>();
 
         createWorld();
         this.messages = new ArrayList<String>();
@@ -62,33 +55,40 @@ public class PlayScreen implements Screen {
     }
 
     private void createCreatures(CreatureFactory creatureFactory) {
-        //this.player = creatureFactory.newPlayer(this.messages);
-        
+        // this.player = creatureFactory.newPlayer(this.messages);
+
         // 开创线程池创造怪物
         ExecutorService exec = Executors.newFixedThreadPool(MONSTER_NUMBER + 1);
         this.player = creatureFactory.newPlayer(this.messages);
+        player.setStatus(gameStatus);
         exec.execute(player);
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                // TODO Auto-generated method stub 
-                if(monsterremain() < MONSTER_NUMBER){
-                    exec.execute(creatureFactory.newMonster(player));
+                // 限制屏幕上剩余怪物数量
+                monsters = monsterRemain();
+                if (monsters.size() < MONSTER_NUMBER && gameStatus) {
+                    Creature m = creatureFactory.newMonster(player);
+                    m.setStatus(gameStatus);
+                    monsters.add(m); // 添加新的怪物
+                    if (gameStatus) {
+                        exec.execute(m);
+                    }
                 }
             }
-            
-        }, 5000, 5000);
-        //exec.shutdown();
-        
+
+        }, 5000, 5000); // 一开始等五秒，之后每五秒检查一次
+        // exec.shutdown();
+
         for (int i = 0; i < FUNGUS_NUMBER; i++) {
             creatureFactory.newFungus();
         }
 
-        for(int i = 0; i < MEDICINE_NUMBER; i++){
+        for (int i = 0; i < MEDICINE_NUMBER; i++) {
             creatureFactory.newMedicine();
         }
 
-        for(int i = 0; i < AMPLIFIER_NUMBER; i++){
+        for (int i = 0; i < AMPLIFIER_NUMBER; i++) {
             creatureFactory.newAmplifier();
         }
     }
@@ -98,10 +98,10 @@ public class PlayScreen implements Screen {
     }
 
     // 统计剩余fungus个数
-    private synchronized int fungusremain(){
+    private synchronized int fungusremain() {
         int count = 0;
-        for(Creature c: world.getCreatures()){
-            if(c.type() == CreatureType.FUNGUS){
+        for (Creature c : world.getCreatures()) {
+            if (c.type() == CreatureType.FUNGUS) {
                 ++count;
             }
         }
@@ -109,14 +109,15 @@ public class PlayScreen implements Screen {
     }
 
     // 统计剩余怪物数
-    private synchronized int monsterremain(){
-        int count = 0;
-        for(Creature c: world.getCreatures()){
-            if(c.type() == CreatureType.MONSTER){
-                ++count;
+    private synchronized List<Creature> monsterRemain() {
+        List<Creature> monsterRemain = new ArrayList<>();
+
+        for (Creature c : world.getCreatures()) {
+            if (c.type() == CreatureType.MONSTER) {
+                monsterRemain.add(c);
             }
         }
-        return count;
+        return monsterRemain;
     }
 
     private void displayTiles(AsciiPanel terminal) {
@@ -132,26 +133,25 @@ public class PlayScreen implements Screen {
         }
         // Show creatures
         for (Creature creature : world.getCreatures()) {
-            if(creature.type() == CreatureType.FUNGUS || creature.type() == CreatureType.MEDICINE||
-            creature.type() == CreatureType.AMPLIFIER){
+            if (creature.type() == CreatureType.FUNGUS || creature.type() == CreatureType.MEDICINE ||
+                    creature.type() == CreatureType.AMPLIFIER) {
                 // 照亮才能看见
                 if (creature.x() >= 0 && creature.x() < World.WIDTH && creature.y() >= 0
-                    && creature.y() < World.HEIGHT) {
+                        && creature.y() < World.HEIGHT) {
                     if (player.canSee(creature.x(), creature.y())) {
                         terminal.write(creature.glyph(), creature.x(), creature.y(), creature.color());
                     }
                 }
-            }
-            else{
-                 // 不用照亮就能看见
+            } else {
+                // 不用照亮就能看见
                 if (creature.x() >= 0 && creature.x() < World.WIDTH && creature.y() >= 0
-                    && creature.y() < World.HEIGHT){
-                        terminal.write(creature.glyph(), creature.x(), creature.y(), creature.color());
-                    }   
+                        && creature.y() < World.HEIGHT) {
+                    terminal.write(creature.glyph(), creature.x(), creature.y(), creature.color());
+                }
             }
         }
         // Creatures can choose their next action now
-        world.update();
+        // world.update();
     }
 
     private void displayMessages(AsciiPanel terminal, List<String> messages) {
@@ -161,8 +161,8 @@ public class PlayScreen implements Screen {
         }
         oldMessages.addAll(messages);
         messages.clear();
-        if(oldMessages.size() > 0){
-            messages.add(oldMessages.get(oldMessages.size() - 1)) ;
+        if (oldMessages.size() > 0) {
+            messages.add(oldMessages.get(oldMessages.size() - 1));
         }
     }
 
@@ -178,17 +178,17 @@ public class PlayScreen implements Screen {
 
         String hpstats = String.format("%3d/%3d hp", player.hp(), player.maxHP());
         terminal.write(hpstats, 1, World.HEIGHT + 2);
-        
+
         String stats = String.format("Get%3d/%3d Hearts", FUNGUS_NUMBER - fungusremain(), FUNGUS_NUMBER);
         terminal.write(stats, 1, World.HEIGHT + 3);
-        
+
         // Messages
         displayMessages(terminal, this.messages);
 
-         //判断player是不是已经死了
-         if(player.hp() <= 0){
+        // 判断player是不是已经死了
+        if (player.hp() <= 0) {
             return new LoseScreen();
-        }else if(fungusremain() == 0){
+        } else if (fungusremain() == 0) {
             // 是否赢得胜利
             return new WinScreen();
         }
@@ -197,37 +197,64 @@ public class PlayScreen implements Screen {
 
     @Override
     public Screen respondToUserInput(KeyEvent key) {
-        player.setKeyEvent(key.getKeyCode());
-        /*switch (key.getKeyCode()) {
-            // 上下左右移动
-            case KeyEvent.VK_LEFT:
-                player.moveBy(-1, 0);
-                break;
-            case KeyEvent.VK_RIGHT:
-                player.moveBy(1, 0);
-                break;
-            case KeyEvent.VK_UP:
-                player.moveBy(0, -1);
-                break;
-            case KeyEvent.VK_DOWN:
-                player.moveBy(0, 1);
-                break;
-            // w a s d放墙
-            case KeyEvent.VK_A:
-                player.setWall(-1, 0);
-                break;
-            case KeyEvent.VK_D:
-                player.setWall(1, 0);
-                break;
-            case KeyEvent.VK_W:
-                player.setWall(0, -1);
-                break;
-            case KeyEvent.VK_S:
-                player.setWall(0, 1);
-                break;
-        }*/
+        if (key.isControlDown() && key.getKeyCode() == KeyEvent.VK_S) {// 同时按下ctrl+S
+            // 首先暂停游戏 改变游戏状态
+            if (gameStatus) {
+                gameStatus = false;
+                // 通知怪物
+                monsters = monsterRemain();
+                for (Creature m : monsters) {
+                    m.setStatus(gameStatus);
+                }
+                // 通知玩家
+                player.setStatus(gameStatus);
+
+                int res = JOptionPane.showConfirmDialog(null, "已暂停，是否保存当前游戏进度并退出", "Option", JOptionPane.YES_NO_OPTION);
+                if (res == JOptionPane.YES_OPTION) {
+                    // 点击“是”后执行这个代码块
+                    // 保存并退出游戏
+                    JOptionPane.showMessageDialog(null, "保存成功", "Information",JOptionPane.INFORMATION_MESSAGE);
+                    System.exit(0); // 摁退出
+                } else {
+                    // 点击“否”后执行这个代码块
+                    // 继续游戏
+                    gameStatus = true;
+                    // 通知怪物
+                    monsters = monsterRemain();
+                    for (Creature m : monsters) {
+                        m.setStatus(gameStatus);
+                    }
+                    // 通知玩家
+                    player.setStatus(gameStatus);
+                }
+
+            }
+        } else {
+            switch (key.getKeyCode()) {
+                case KeyEvent.VK_SPACE: {
+                    // 改变游戏状态
+                    if (gameStatus) {
+                        gameStatus = false;
+                    } else {
+                        gameStatus = true;
+                    }
+
+                    // 通知怪物
+                    monsters = monsterRemain();
+                    for (Creature m : monsters) {
+                        m.setStatus(gameStatus);
+                    }
+
+                    // 通知玩家
+                    player.setStatus(gameStatus);
+                }
+                    break;
+                default:
+                    player.setKeyEvent(key.getKeyCode());
+                    break;
+            }
+        }
         return this;
     }
-
 
 }

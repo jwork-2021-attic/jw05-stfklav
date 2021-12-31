@@ -25,7 +25,7 @@ import java.awt.event.KeyEvent;
  *
  * @author Aeranythe Echosong
  */
-public class PlayerAI extends CreatureAI{
+public class PlayerAI extends CreatureAI {
 
     private List<String> messages;
 
@@ -38,62 +38,64 @@ public class PlayerAI extends CreatureAI{
         if (tile.isGround()) {
             creature.setX(x);
             creature.setY(y);
-        } else if(tile.isWall()){
+        } else if (tile.isWall()) {
             this.creature.dig(x, y);
             creature.setX(x);
             creature.setY(y);
         }
     }
+
     @Override
     public void run() {
-        while(this.creature.hp() > 0){
-            //creature.moveBy(-1, 0);
-            //creature.moveBy(0, 1);
-           
-            switch (this.creature.keyevent()) {
-                // 上下左右移动
-                case KeyEvent.VK_LEFT:
-                    creature.moveBy(-1, 0);
-                    break;
-                case KeyEvent.VK_RIGHT:
-                    creature.moveBy(1, 0);
-                    break;
-                case KeyEvent.VK_UP:
-                    creature.moveBy(0, -1);
-                    break;
-                case KeyEvent.VK_DOWN:
-                    creature.moveBy(0, 1);
-                    break;
-                // w a s d放墙
-                case KeyEvent.VK_A:
-                    creature.setWall(-1, 0);
-                    break;
-                case KeyEvent.VK_D:
-                    creature.setWall(1, 0);
-                    break;
-                case KeyEvent.VK_W:
-                    creature.setWall(0, -1);
-                    break;
-                case KeyEvent.VK_S:
-                    creature.setWall(0, 1);
-                    break;
-                default:
-                    break;
+        while (this.creature.hp() > 0) {
+            if (creature.getStatus()) {
+                switch (this.creature.keyevent()) {
+                    // 上下左右移动
+                    case KeyEvent.VK_LEFT:
+                        creature.moveBy(-1, 0);
+                        break;
+                    case KeyEvent.VK_RIGHT:
+                        creature.moveBy(1, 0);
+                        break;
+                    case KeyEvent.VK_UP:
+                        creature.moveBy(0, -1);
+                        break;
+                    case KeyEvent.VK_DOWN:
+                        creature.moveBy(0, 1);
+                        break;
+                    // w a s d放墙
+                    case KeyEvent.VK_A:
+                        creature.setWall(-1, 0);
+                        break;
+                    case KeyEvent.VK_D:
+                        creature.setWall(1, 0);
+                        break;
+                    case KeyEvent.VK_W:
+                        creature.setWall(0, -1);
+                        break;
+                    case KeyEvent.VK_S:
+                        creature.setWall(0, 1);
+                        break;
+                    default:
+                        break;
+                }
             }
+
+            // 每次回到Enter键
             creature.setKeyEvent(KeyEvent.VK_ENTER);
             try {
                 TimeUnit.MILLISECONDS.sleep(100);
             } catch (InterruptedException e) {
-                //TODO: handle exception
+                // TODO: handle exception
                 e.printStackTrace();
             }
-            //Thread.yield();
+            // Thread.yield();
         }
         return;
     }
+
     public void onNotify(String message) {
         this.messages.add(message);
     }
 
-    
 }

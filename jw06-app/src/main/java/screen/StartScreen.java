@@ -17,6 +17,8 @@
  */
 package screen;
 
+import javax.swing.JButton;
+
 import asciiPanel.AsciiPanel;
 
 /**

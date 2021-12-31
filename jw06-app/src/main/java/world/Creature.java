@@ -70,7 +70,7 @@ public class Creature implements Runnable{
         this.ai = ai;
     }
 
-    private int keyevent;
+    private int keyevent = 10; // 通过键盘事件控制
 
     public void setKeyEvent(int k){
         this.keyevent = k;
@@ -78,6 +78,16 @@ public class Creature implements Runnable{
 
     public int keyevent(){
         return this.keyevent;
+    }
+
+    boolean status = true; // 是否正在运行，由空格键控制
+
+    public boolean getStatus(){
+        return this.status;
+    }
+
+    public void setStatus(boolean s){
+        this.status = s;
     }
 
     private int maxHP;
