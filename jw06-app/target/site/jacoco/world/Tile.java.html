@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Tile.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">191220091-Roguelike</a> &gt; <a href="index.source.html" class="el_package">world</a> &gt; <span class="el_source">Tile.java</span></div><h1>Tile.java</h1><pre class="source lang-java linenums">package world;
+
+import asciiPanel.AsciiPanel;
+import java.awt.Color;
+
+<span class="fc" id="L6">public enum Tile {</span>
+
+<span class="fc" id="L8">    FLOOR((char) 250, AsciiPanel.brightWhite),</span>
+
+<span class="fc" id="L10">    WALL((char) 177, AsciiPanel.brightBlack),</span>
+
+<span class="fc" id="L12">    BOUNDS('x', AsciiPanel.magenta);</span>
+
+    private char glyph;
+
+    public char glyph() {
+<span class="nc" id="L17">        return glyph;</span>
+    }
+
+    private Color color;
+
+    public Color color() {
+<span class="nc" id="L23">        return color;</span>
+    }
+
+    public boolean isGround() {
+<span class="pc bpc" id="L27" title="2 of 4 branches missed.">        return this != Tile.WALL &amp;&amp; this != Tile.BOUNDS;</span>
+    }
+
+    public boolean isWall(){
+<span class="nc bnc" id="L31" title="All 2 branches missed.">        return this == Tile.WALL;</span>
+    }
+
+<span class="fc" id="L34">    Tile(char glyph, Color color) {</span>
+<span class="fc" id="L35">        this.glyph = glyph;</span>
+<span class="fc" id="L36">        this.color = color;</span>
+<span class="fc" id="L37">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

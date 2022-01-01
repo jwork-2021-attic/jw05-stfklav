@@ -14,7 +14,7 @@ import world.*;
 import screen.*;
 import asciiPanel.*;
 
-public class MyTest {
+public class WorldTest {
 
     @Test
     public void SerializingAndDeserializing() throws IOException, ClassNotFoundException {

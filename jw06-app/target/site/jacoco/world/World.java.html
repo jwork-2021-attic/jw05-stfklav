@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>World.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">191220091-Roguelike</a> &gt; <a href="index.source.html" class="el_package">world</a> &gt; <span class="el_source">World.java</span></div><h1>World.java</h1><pre class="source lang-java linenums">package world;
+
+import java.awt.Color;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+public class World implements Serializable {
+
+    private Tile[][] tiles;
+    private int width;
+    private int height;
+    public static final int WIDTH = 30;
+    public static final int HEIGHT = 30;
+    
+    public static final int TILE_TYPES = 2;
+    private ArrayList&lt;Creature&gt; creatures; // 序列化函数中再处理
+
+<span class="fc" id="L23">    public World(Tile[][] tiles) {</span>
+<span class="fc" id="L24">        this.tiles = tiles;</span>
+<span class="fc" id="L25">        this.width = tiles.length;</span>
+<span class="fc" id="L26">        this.height = tiles[0].length;</span>
+<span class="fc" id="L27">        this.creatures = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L28">    }</span>
+
+    public Tile tile(int x, int y) {
+<span class="pc bpc" id="L31" title="4 of 8 branches missed.">        if (x &lt; 0 || x &gt;= width || y &lt; 0 || y &gt;= height) {</span>
+<span class="nc" id="L32">            return Tile.BOUNDS;</span>
+        } else {
+<span class="fc" id="L34">            return tiles[x][y];</span>
+        }
+    }
+
+    public char glyph(int x, int y) {
+<span class="nc" id="L39">        return tiles[x][y].glyph();</span>
+    }
+
+    public Color color(int x, int y) {
+<span class="nc" id="L43">        return tiles[x][y].color();</span>
+    }
+
+    public int width() {
+<span class="nc" id="L47">        return width;</span>
+    }
+
+    public int height() {
+<span class="fc" id="L51">        return height;</span>
+    }
+
+    public void dig(int x, int y) {
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (tile(x, y).isWall()) {</span>
+<span class="nc" id="L56">            tiles[x][y] = Tile.FLOOR;</span>
+        }
+<span class="nc" id="L58">    }</span>
+
+    public void setWall(int x, int y) {
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (tile(x, y).isGround()) {</span>
+            // 是平地才能放墙
+<span class="nc" id="L63">            tiles[x][y] = Tile.WALL;</span>
+        }
+<span class="nc" id="L65">    }</span>
+
+    public synchronized void addAtEmptyLocation(Creature creature) {
+<span class="fc" id="L68">        int x = 0;</span>
+<span class="fc" id="L69">        int y = 0;</span>
+
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">        if (creature.type() == CreatureType.MONSTER) {</span>
+            // 怪物从边上进来
+<span class="nc" id="L73">            Random rand = new Random();</span>
+<span class="nc bnc" id="L74" title="All 5 branches missed.">            switch (rand.nextInt(4)) {</span>
+                case 0:
+                    do {
+<span class="nc" id="L77">                        x = (int) (Math.random() * this.width);</span>
+<span class="nc" id="L78">                        y = 0;</span>
+<span class="nc bnc" id="L79" title="All 4 branches missed.">                    } while (!tile(x, y).isGround() || this.creature(x, y) != null);</span>
+<span class="nc" id="L80">                    break;</span>
+                case 1:
+                    do {
+<span class="nc" id="L83">                        x = (int) (Math.random() * this.width);</span>
+<span class="nc" id="L84">                        y = this.height - 1;</span>
+<span class="nc bnc" id="L85" title="All 4 branches missed.">                    } while (!tile(x, y).isGround() || this.creature(x, y) != null);</span>
+<span class="nc" id="L86">                    break;</span>
+                case 3:
+                    do {
+<span class="nc" id="L89">                        x = 0;</span>
+<span class="nc" id="L90">                        y = (int) (Math.random() * this.height);</span>
+<span class="nc bnc" id="L91" title="All 4 branches missed.">                    } while (!tile(x, y).isGround() || this.creature(x, y) != null);</span>
+<span class="nc" id="L92">                    break;</span>
+                case 4:
+                    do {
+<span class="nc" id="L95">                        x = this.width - 1;</span>
+<span class="nc" id="L96">                        y = (int) (Math.random() * this.height);</span>
+<span class="nc bnc" id="L97" title="All 4 branches missed.">                    } while (!tile(x, y).isGround() || this.creature(x, y) != null);</span>
+                    break;
+            }
+<span class="nc" id="L100">        } else {</span>
+            do {
+<span class="fc" id="L102">                x = (int) (Math.random() * this.width);</span>
+<span class="fc" id="L103">                y = (int) (Math.random() * this.height);</span>
+<span class="pc bpc" id="L104" title="2 of 4 branches missed.">            } while (!tile(x, y).isGround() || this.creature(x, y) != null);</span>
+        }
+
+<span class="fc" id="L107">        creature.setX(x);</span>
+<span class="fc" id="L108">        creature.setY(y);</span>
+
+<span class="fc" id="L110">        this.creatures.add(creature);</span>
+<span class="fc" id="L111">    }</span>
+
+    public synchronized Creature creature(int x, int y) {
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        for (Creature c : this.creatures) {</span>
+<span class="pc bpc" id="L115" title="3 of 4 branches missed.">            if (c.x() == x &amp;&amp; c.y() == y) {</span>
+<span class="nc" id="L116">                return c;</span>
+            }
+        }
+<span class="fc" id="L119">        return null;</span>
+    }
+
+    public synchronized List&lt;Creature&gt; getCreatures() {
+<span class="nc" id="L123">        return this.creatures;</span>
+    }
+
+    public synchronized void remove(Creature target) {
+<span class="nc" id="L127">        this.creatures.remove(target);</span>
+<span class="nc" id="L128">    }</span>
+
+    // 统计剩余玩家
+    public synchronized List&lt;Creature&gt; playerRemain() {
+<span class="nc" id="L132">        List&lt;Creature&gt; playerRemain = new ArrayList&lt;&gt;();</span>
+
+<span class="nc bnc" id="L134" title="All 2 branches missed.">        for (Creature c : this.getCreatures()) {</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">            if (c.type() == CreatureType.PLAYER) {</span>
+<span class="nc" id="L136">                playerRemain.add(c);</span>
+            }
+        }
+<span class="nc" id="L139">        return playerRemain;</span>
+    }
+
+    // 统计剩余怪物数
+    public synchronized List&lt;Creature&gt; monsterRemain() {
+<span class="nc" id="L144">        List&lt;Creature&gt; monsterRemain = new ArrayList&lt;&gt;();</span>
+
+<span class="nc bnc" id="L146" title="All 2 branches missed.">        for (Creature c : this.getCreatures()) {</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">            if (c.type() == CreatureType.MONSTER) {</span>
+<span class="nc" id="L148">                monsterRemain.add(c);</span>
+            }
+        }
+<span class="nc" id="L151">        return monsterRemain;</span>
+    }
+
+    // 统计剩余fungus
+    public synchronized List&lt;Creature&gt; fungusRemain() {
+<span class="nc" id="L156">        List&lt;Creature&gt; fungusRemain = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">        for (Creature c : this.getCreatures()) {</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">            if (c.type() == CreatureType.FUNGUS) {</span>
+<span class="nc" id="L159">                fungusRemain.add(c);</span>
+            }
+        }
+<span class="nc" id="L162">        return fungusRemain;</span>
+    }
+
+    // 统计剩余medicine
+    public synchronized List&lt;Creature&gt; medicineRemain() {
+<span class="nc" id="L167">        List&lt;Creature&gt; medicineRemain = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">        for (Creature c : this.getCreatures()) {</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">            if (c.type() == CreatureType.MEDICINE) {</span>
+<span class="nc" id="L170">                medicineRemain.add(c);</span>
+            }
+        }
+<span class="nc" id="L173">        return medicineRemain;</span>
+    }
+
+    // 统计剩余amplifier
+    public synchronized List&lt;Creature&gt; amplifierRemain() {
+<span class="nc" id="L178">        List&lt;Creature&gt; amplifierRemain = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">        for (Creature c : this.getCreatures()) {</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">            if (c.type() == CreatureType.MEDICINE) {</span>
+<span class="nc" id="L181">                amplifierRemain.add(c);</span>
+            }
+        }
+<span class="nc" id="L184">        return amplifierRemain;</span>
+    }
+
+    // setters and getters 序列化输出输入
+    private synchronized void writeObject(ObjectOutputStream oos) throws IOException {
+<span class="fc" id="L189">        oos.defaultWriteObject();</span>
+        // oos.writeObject(creatures);
+<span class="fc" id="L191">    }</span>
+   
+    private synchronized void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+<span class="fc" id="L194">        ois.defaultReadObject();</span>
+<span class="fc bfc" id="L195" title="All 2 branches covered.">        for (Creature c : this.creatures){</span>
+<span class="fc" id="L196">            c.setWorld(this);</span>
+<span class="fc" id="L197">            new CreatureAI(c);</span>
+        }
+<span class="fc" id="L199">    }</span>
+
+    public synchronized void update() {
+<span class="nc" id="L202">        ArrayList&lt;Creature&gt; toUpdate = new ArrayList&lt;&gt;(this.creatures);</span>
+
+<span class="nc bnc" id="L204" title="All 2 branches missed.">        for (Creature creature : toUpdate) {</span>
+<span class="nc" id="L205">            creature.update();</span>
+        }
+<span class="nc" id="L207">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

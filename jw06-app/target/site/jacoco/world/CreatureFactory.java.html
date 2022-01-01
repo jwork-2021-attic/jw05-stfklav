@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CreatureFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">191220091-Roguelike</a> &gt; <a href="index.source.html" class="el_package">world</a> &gt; <span class="el_source">CreatureFactory.java</span></div><h1>CreatureFactory.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2015 Aeranythe Echosong
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+package world;
+
+import java.util.List;
+
+import asciiPanel.AsciiPanel;
+
+/**
+ *
+ * @author Aeranythe Echosong
+ */
+public class CreatureFactory {
+
+    private World world;
+
+<span class="nc" id="L32">    public CreatureFactory(World world) {</span>
+<span class="nc" id="L33">        this.world = world;</span>
+<span class="nc" id="L34">    }</span>
+
+    public Creature newPlayer(List&lt;String&gt; messages) {
+<span class="nc" id="L37">        Creature player = new Creature(this.world, CreatureType.PLAYER, (char)2, AsciiPanel.brightWhite, 100, 20, 0, 5);</span>
+<span class="nc" id="L38">        world.addAtEmptyLocation(player);</span>
+<span class="nc" id="L39">        new PlayerAI(player, messages);</span>
+<span class="nc" id="L40">        return player;</span>
+    }
+
+    public Creature newFungus() {
+<span class="nc" id="L44">        Creature fungus = new Creature(this.world, CreatureType.FUNGUS, (char)3, AsciiPanel.brightRed, 10, 0, 0, 0);</span>
+<span class="nc" id="L45">        world.addAtEmptyLocation(fungus);</span>
+<span class="nc" id="L46">        new FungusAI(fungus);</span>
+<span class="nc" id="L47">        return fungus;</span>
+    }
+
+    public Creature newMedicine() {
+<span class="nc" id="L51">        Creature medicine = new Creature(this.world, CreatureType.MEDICINE, (char)8, AsciiPanel.green, 8, 0, 0, 0);</span>
+<span class="nc" id="L52">        world.addAtEmptyLocation(medicine);</span>
+<span class="nc" id="L53">        new MedicineAI(medicine);</span>
+<span class="nc" id="L54">        return medicine;</span>
+    }
+    public Creature newAmplifier() {
+<span class="nc" id="L57">        Creature amplifier = new Creature(this.world, CreatureType.AMPLIFIER, (char)15, AsciiPanel.brightBlue, 8, 0, 0, 0);</span>
+<span class="nc" id="L58">        world.addAtEmptyLocation(amplifier);</span>
+<span class="nc" id="L59">        new AmplifierAI(amplifier);</span>
+<span class="nc" id="L60">        return amplifier;</span>
+    }
+
+    public Creature newMonster(Creature player) {
+<span class="nc" id="L64">        Creature monster = new Creature(this.world, CreatureType.MONSTER, (char)12, AsciiPanel.brightYellow, 50, 20, 5, 8);</span>
+<span class="nc" id="L65">        world.addAtEmptyLocation(monster);</span>
+<span class="nc" id="L66">        new MonsterAI(monster, this.world, player);</span>
+<span class="nc" id="L67">        return monster;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

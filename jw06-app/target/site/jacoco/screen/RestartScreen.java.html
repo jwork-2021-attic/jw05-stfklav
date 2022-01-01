@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RestartScreen.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">191220091-Roguelike</a> &gt; <a href="index.source.html" class="el_package">screen</a> &gt; <span class="el_source">RestartScreen.java</span></div><h1>RestartScreen.java</h1><pre class="source lang-java linenums">
+package screen;
+
+import asciiPanel.AsciiPanel;
+import java.awt.event.KeyEvent;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+
+<span class="nc" id="L10">public abstract class RestartScreen implements Screen {</span>
+
+<span class="nc" id="L12">    protected static int monster_num = 3;</span>
+<span class="nc" id="L13">    protected static int fungus_num = 3;</span>
+<span class="nc" id="L14">    protected static int medicine_num = 8;</span>
+<span class="nc" id="L15">    protected static int amplifier_num = 3;</span>
+
+<span class="nc" id="L17">    protected static int level = 0;</span>
+
+    @Override
+    public abstract Screen displayOutput(AsciiPanel terminal);
+
+    // 反序列化
+     public Screen deserializing() throws IOException, ClassNotFoundException {
+<span class="nc" id="L24">        FileInputStream fileInputStream = new FileInputStream(Screen.FileName);</span>
+<span class="nc" id="L25">        ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);</span>
+<span class="nc" id="L26">        PlayScreen p = (PlayScreen) objectInputStream.readObject();</span>
+<span class="nc" id="L27">        monster_num = p.MONSTER_NUMBER;</span>
+<span class="nc" id="L28">        fungus_num = p.FUNGUS_NUMBER;</span>
+<span class="nc" id="L29">        medicine_num = p.MEDICINE_NUMBER;</span>
+<span class="nc" id="L30">        amplifier_num = p.AMPLIFIER_NUMBER;</span>
+<span class="nc" id="L31">        level = p.level;</span>
+<span class="nc" id="L32">        p.run();</span>
+<span class="nc" id="L33">        objectInputStream.close();</span>
+<span class="nc" id="L34">        return p;</span>
+    }
+
+    @Override
+    public Screen respondToUserInput(KeyEvent key) {
+<span class="nc bnc" id="L39" title="All 4 branches missed.">        if (key.isControlDown() &amp;&amp; key.getKeyCode() == KeyEvent.VK_S) {// 同时按下ctrl+S</span>
+            try {
+<span class="nc" id="L41">                return deserializing();</span>
+<span class="nc" id="L42">            } catch (Exception e) {</span>
+<span class="nc" id="L43">                System.out.println(&quot;反序列化失败！&quot;);</span>
+            }
+<span class="nc" id="L45">        } else {</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">            switch (key.getKeyCode()) {</span>
+                case KeyEvent.VK_ENTER:
+<span class="nc" id="L48">                    return new PlayScreen(monster_num, fungus_num, medicine_num, amplifier_num, level);</span>
+                default:
+<span class="nc" id="L50">                    return this;</span>
+            }
+        }
+<span class="nc" id="L53">        return this;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

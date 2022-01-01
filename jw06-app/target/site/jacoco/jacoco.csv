@@ -1,0 +1,27 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+191220091-Roguelike,default,ApplicationMain.new TimerTask() {...},10,0,0,0,3,0,2,0,2,0
+191220091-Roguelike,default,ApplicationMain,78,0,0,0,23,0,6,0,6,0
+191220091-Roguelike,world,CreatureFactory,120,0,0,0,23,0,6,0,6,0
+191220091-Roguelike,world,PlayerAI,115,0,17,0,37,0,16,0,4,0
+191220091-Roguelike,world,MonsterAI,386,0,29,0,63,0,23,0,8,0
+191220091-Roguelike,world,MedicineAI,9,0,0,0,4,0,2,0,2,0
+191220091-Roguelike,world,WorldBuilder,16,166,5,26,3,35,4,17,0,5
+191220091-Roguelike,world,CreatureAI,39,10,2,0,8,4,6,1,5,1
+191220091-Roguelike,world,Creature,369,64,34,0,84,27,45,9,28,9
+191220091-Roguelike,world,FungusAI,4,0,0,0,2,0,1,0,1,0
+191220091-Roguelike,world,Node,9,0,0,0,4,0,1,0,1,0
+191220091-Roguelike,world,Tile,15,59,4,2,3,9,6,3,3,3
+191220091-Roguelike,world,Creature.new TimerTask() {...},15,0,0,0,3,0,2,0,2,0
+191220091-Roguelike,world,World,312,130,57,12,61,29,47,9,13,7
+191220091-Roguelike,world,CreatureType,0,54,0,0,0,6,0,1,0,1
+191220091-Roguelike,world,AmplifierAI,9,0,0,0,4,0,2,0,2,0
+191220091-Roguelike,asciiPanel,AsciiCharacterData,3,0,0,0,1,0,1,0,1,0
+191220091-Roguelike,asciiPanel,AsciiFont,85,0,0,0,17,0,5,0,5,0
+191220091-Roguelike,asciiPanel,AsciiPanel,2287,113,238,0,325,16,163,1,44,1
+191220091-Roguelike,screen,StartScreen,17,0,0,0,4,0,2,0,2,0
+191220091-Roguelike,screen,PlayScreen,714,0,74,0,137,0,48,0,11,0
+191220091-Roguelike,screen,RestartScreen,80,0,6,0,26,0,7,0,4,0
+191220091-Roguelike,screen,WinScreen,29,0,0,0,8,0,2,0,2,0
+191220091-Roguelike,screen,LoseScreen,17,0,0,0,4,0,2,0,2,0
+191220091-Roguelike,screen,PlayScreen.new TimerTask() {...},48,0,4,0,8,0,4,0,2,0
+191220091-Roguelike,screen,PlayScreen.new TimerTask() {...},48,0,4,0,8,0,4,0,2,0
