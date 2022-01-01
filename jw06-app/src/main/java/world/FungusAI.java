@@ -23,11 +23,9 @@ package world;
  */
 public class FungusAI extends CreatureAI {
 
-    private CreatureFactory factory;
     
-    public FungusAI(Creature creature, CreatureFactory factory) {
+    public FungusAI(Creature creature) {
         super(creature);
-        this.factory = factory;
     }
 
 }

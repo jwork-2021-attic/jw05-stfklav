@@ -1,112 +1,96 @@
-/*
- * Copyright (C) 2015 Aeranythe Echosong
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
 package world;
 
 import java.awt.Color;
 import java.awt.event.KeyEvent;
-
-import  java.util.Timer;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.Timer;
 import java.util.TimerTask;
 
-/**
- *
- * @author Aeranythe Echosong
- */
+public class Creature implements Runnable, Serializable {
 
-public class Creature implements Runnable{
-
-    private World world;
+    private transient World world;
 
     private int x;
+    private int y;
+    private char glyph;
+    private Color color;
+    private transient CreatureAI ai;
+
+    private int keyevent; // 通过键盘事件控制
+    boolean status = true; // 是否正在运行，由空格键控制
+
+    private int maxHP;
+    private int hp;
+    private int attackValue;
+    private int defenseValue;
+    private int visionRadius; // 视野范围
+    private CreatureType type; // 生物类型，和ai类型一一对应
+
+    public void setWorld(World w) {
+        this.world = w;
+    }
 
     public void setX(int x) {
         this.x = x;
     }
 
+
     public int x() {
         return x;
     }
-
-    private int y;
 
     public void setY(int y) {
         this.y = y;
     }
 
+
     public int y() {
         return y;
     }
-
-    private char glyph;
 
     public char glyph() {
         return this.glyph;
     }
 
-    private Color color;
-
     public Color color() {
         return this.color;
     }
-
-    private CreatureAI ai;
 
     public void setAI(CreatureAI ai) {
         this.ai = ai;
     }
 
-    private int keyevent = 10; // 通过键盘事件控制
-
-    public void setKeyEvent(int k){
+    public void setKeyEvent(int k) {
         this.keyevent = k;
     }
 
-    public int keyevent(){
+    public int keyevent() {
         return this.keyevent;
     }
 
-    boolean status = true; // 是否正在运行，由空格键控制
-
-    public boolean getStatus(){
+    public boolean getStatus() {
         return this.status;
     }
 
-    public void setStatus(boolean s){
+    public void setStatus(boolean s) {
         this.status = s;
     }
-
-    private int maxHP;
 
     public int maxHP() {
         return this.maxHP;
     }
-
-    private int hp;
 
     public int hp() {
         return this.hp;
     }
 
     public void modifyHP(int amount) {
-        if(this.hp + amount > this.maxHP){
+        if (this.hp + amount > this.maxHP) {
             this.hp = this.maxHP;
-        }
-        else{
+        } else {
             this.hp += amount;
         }
         if (this.hp <= 0) {
@@ -114,31 +98,23 @@ public class Creature implements Runnable{
         }
     }
 
-    private int attackValue;
-
     public int attackValue() {
         return this.attackValue;
     }
-
-    private int defenseValue;
 
     public int defenseValue() {
         return this.defenseValue;
     }
 
-    private int visionRadius;
-
     public int visionRadius() {
         return this.visionRadius;
     }
 
-    public void setVisionRadius(int vr){
+    public void setVisionRadius(int vr) {
         this.visionRadius = vr;
     }
 
-    private CreatureType type; // 生物类型，和ai类型一一对应
-
-    public CreatureType type(){
+    public CreatureType type() {
         return this.type;
     }
 
@@ -154,20 +130,20 @@ public class Creature implements Runnable{
         return world.tile(wx, wy);
     }
 
-    public void dig(int wx, int wy){
-        if(this.type == CreatureType.PLAYER){
+    public void dig(int wx, int wy) {
+        if (this.type == CreatureType.PLAYER) {
             this.modifyHP(-10);
-        }else if(this.type == CreatureType.MONSTER){
+        } else if (this.type == CreatureType.MONSTER) {
             this.modifyHP(-this.hp);
         }
         world.dig(wx, wy);
     }
 
     // 向四周布置墙壁
-    public synchronized void setWall(int mx, int my){
+    public synchronized void setWall(int mx, int my) {
 
         Creature other = world.creature(x + mx, y + my);
-        if(other == null){
+        if (other == null) {
             // 没有creature，可以放wall
             world.setWall(x + mx, y + my);
         }
@@ -178,24 +154,23 @@ public class Creature implements Runnable{
 
         if (other == null) {
             ai.onEnter(x + mx, y + my, world.tile(x + mx, y + my));
-        }else{
-            if(this.type == CreatureType.PLAYER){
+        } else {
+            if (this.type == CreatureType.PLAYER) {
                 // 只有玩家可以吃
-                if(other.type() == CreatureType.FUNGUS || other.type() == CreatureType.MEDICINE ||
-                other.type() == CreatureType.AMPLIFIER){
+                if (other.type() == CreatureType.FUNGUS || other.type() == CreatureType.MEDICINE ||
+                        other.type() == CreatureType.AMPLIFIER) {
                     eat(other);
                     ai.onEnter(x + mx, y + my, world.tile(x + mx, y + my));
-                }else{
+                } else {
                     attack(other);
                 }
-            }
-            else{
+            } else {
                 // 怪物只能攻击玩家
-                if(other.type() == CreatureType.PLAYER){
+                if (other.type() == CreatureType.PLAYER) {
                     attack(other);
                 }
             }
-        } 
+        }
     }
 
     // 攻击别人
@@ -203,15 +178,15 @@ public class Creature implements Runnable{
         int damage = Math.max(0, this.attackValue() - other.defenseValue());
         damage = (int) (Math.random() * damage) + 1; // Math.random()生成0~1之间的随机小数
 
-        if(other.beattacked(this, damage)){
+        if (other.beattacked(this, damage)) {
             this.notify("You attack the '%s' for %d damage.", other.glyph, damage);
         }
     }
 
-    //被别人攻击
-    public boolean beattacked(Creature other, int damage){
+    // 被别人攻击
+    public boolean beattacked(Creature other, int damage) {
         // 攻击超过防御值才接受伤害
-        if(damage > this.defenseValue()){
+        if (damage > this.defenseValue()) {
             this.modifyHP(-damage);
             this.notify("The '%s' attacks you for %d damage.", other.glyph, damage);
             return true;
@@ -220,23 +195,22 @@ public class Creature implements Runnable{
     }
 
     // 被治愈
-    public void behealed(Creature other){
+    public void behealed(Creature other) {
         int heal = other.hp;
 
-        if(this.hp < this.maxHP){
+        if (this.hp < this.maxHP) {
             this.modifyHP(heal);
         }
     }
 
-    //吃掉fungus或medicine
-    public void eat(Creature other){
-        if(other.type() == CreatureType.FUNGUS){
+    // 吃掉fungus或medicine
+    public void eat(Creature other) {
+        if (other.type() == CreatureType.FUNGUS) {
             world.remove(other);
-        }
-        else if(other.type() == CreatureType.MEDICINE){
+        } else if (other.type() == CreatureType.MEDICINE) {
             this.behealed(other);
             world.remove(other);
-        }else if(other.type() == CreatureType.AMPLIFIER){
+        } else if (other.type() == CreatureType.AMPLIFIER) {
             setVisionRadius(this.visionRadius * 2);
             new Timer().schedule(new TimerTask() {
 
@@ -245,11 +219,11 @@ public class Creature implements Runnable{
                     // TODO Auto-generated method stub
                     setVisionRadius(visionRadius / 2);
                 }
-                
+
             }, 5000);
             world.remove(other);
         }
-        
+
     }
 
     public void update() {
@@ -264,7 +238,8 @@ public class Creature implements Runnable{
         ai.onNotify(String.format(message, params));
     }
 
-    public Creature(World world, CreatureType type, char glyph, Color color, int maxHP, int attack, int defense, int visionRadius) {
+    public Creature(World world, CreatureType type, char glyph, Color color, int maxHP, int attack, int defense,
+            int visionRadius) {
         this.world = world;
         this.type = type;
         this.glyph = glyph;
@@ -277,8 +252,17 @@ public class Creature implements Runnable{
         this.keyevent = KeyEvent.VK_ENTER;
     }
 
+    // setters and getters 序列化输出输入
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        oos.defaultWriteObject();
+    }
+
+    private synchronized void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        ois.defaultReadObject();
+    }
+
     @Override
     public void run() {
-       ai.run();
+        ai.run();
     }
 }

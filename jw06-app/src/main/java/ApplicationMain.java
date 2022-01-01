@@ -18,6 +18,7 @@
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
 
 import javax.swing.JFrame;
 
@@ -26,7 +27,7 @@ import asciiPanel.AsciiPanel;
 import screen.Screen;
 import screen.StartScreen;
 
-import  java.util.Timer;
+import java.util.Timer;
 import java.util.TimerTask;
 
 /**
@@ -61,7 +62,6 @@ public class ApplicationMain extends JFrame implements KeyListener {
         repaint();
     }
 
-
     @Override
     public void repaint() {
         terminal.clear();
@@ -75,7 +75,7 @@ public class ApplicationMain extends JFrame implements KeyListener {
      */
     public void keyPressed(KeyEvent e) {
         screen = screen.respondToUserInput(e);
-        //repaint();
+        // repaint();
     }
 
     /**

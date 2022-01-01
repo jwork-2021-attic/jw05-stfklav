@@ -1,29 +1,12 @@
-/*
- * Copyright (C) 2015 Aeranythe Echosong
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
+
 package screen;
 
 import asciiPanel.AsciiPanel;
 import java.awt.event.KeyEvent;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 
-/**
- *
- * @author Aeranythe Echosong
- */
 public abstract class RestartScreen implements Screen {
 
     protected static int monster_num = 3;
@@ -36,14 +19,38 @@ public abstract class RestartScreen implements Screen {
     @Override
     public abstract Screen displayOutput(AsciiPanel terminal);
 
+    // 反序列化
+     public Screen deserializing() throws IOException, ClassNotFoundException {
+        FileInputStream fileInputStream = new FileInputStream(Screen.FileName);
+        ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+        PlayScreen p = (PlayScreen) objectInputStream.readObject();
+        monster_num = p.MONSTER_NUMBER;
+        fungus_num = p.FUNGUS_NUMBER;
+        medicine_num = p.MEDICINE_NUMBER;
+        amplifier_num = p.AMPLIFIER_NUMBER;
+        level = p.level;
+        p.run();
+        objectInputStream.close();
+        return p;
+    }
+
     @Override
     public Screen respondToUserInput(KeyEvent key) {
-        switch (key.getKeyCode()) {
-            case KeyEvent.VK_ENTER:
-                return new PlayScreen(monster_num, fungus_num, medicine_num, amplifier_num, level);
-            default:
-                return this;
+        if (key.isControlDown() && key.getKeyCode() == KeyEvent.VK_S) {// 同时按下ctrl+S
+            try {
+                return deserializing();
+            } catch (Exception e) {
+                System.out.println("反序列化失败！");
+            }
+        } else {
+            switch (key.getKeyCode()) {
+                case KeyEvent.VK_ENTER:
+                    return new PlayScreen(monster_num, fungus_num, medicine_num, amplifier_num, level);
+                default:
+                    return this;
+            }
         }
+        return this;
     }
 
 }

@@ -1,41 +1,24 @@
 package world;
 
 import java.awt.Color;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-/*
- * Copyright (C) 2015 Aeranythe Echosong
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
-/**
- *
- * @author Aeranythe Echosong
- */
-public class World {
+public class World implements Serializable {
 
     private Tile[][] tiles;
     private int width;
     private int height;
     public static final int WIDTH = 30;
     public static final int HEIGHT = 30;
-    private List<Creature> creatures;
-
+    
     public static final int TILE_TYPES = 2;
+    private ArrayList<Creature> creatures; // 序列化函数中再处理
 
     public World(Tile[][] tiles) {
         this.tiles = tiles;
@@ -68,14 +51,14 @@ public class World {
         return height;
     }
 
-    public void dig(int x, int y){
-        if(tile(x, y).isWall()){
+    public void dig(int x, int y) {
+        if (tile(x, y).isWall()) {
             tiles[x][y] = Tile.FLOOR;
         }
     }
 
-    public void setWall(int x, int y){
-        if(tile(x, y).isGround()){
+    public void setWall(int x, int y) {
+        if (tile(x, y).isGround()) {
             // 是平地才能放墙
             tiles[x][y] = Tile.WALL;
         }
@@ -85,7 +68,7 @@ public class World {
         int x = 0;
         int y = 0;
 
-        if(creature.type() == CreatureType.MONSTER){
+        if (creature.type() == CreatureType.MONSTER) {
             // 怪物从边上进来
             Random rand = new Random();
             switch (rand.nextInt(4)) {
@@ -106,16 +89,15 @@ public class World {
                         x = 0;
                         y = (int) (Math.random() * this.height);
                     } while (!tile(x, y).isGround() || this.creature(x, y) != null);
-                break;
+                    break;
                 case 4:
                     do {
                         x = this.width - 1;
                         y = (int) (Math.random() * this.height);
                     } while (!tile(x, y).isGround() || this.creature(x, y) != null);
-                break;
+                    break;
             }
-        }
-        else{
+        } else {
             do {
                 x = (int) (Math.random() * this.width);
                 y = (int) (Math.random() * this.height);
@@ -127,7 +109,6 @@ public class World {
 
         this.creatures.add(creature);
     }
-
 
     public synchronized Creature creature(int x, int y) {
         for (Creature c : this.creatures) {
@@ -144,6 +125,77 @@ public class World {
 
     public synchronized void remove(Creature target) {
         this.creatures.remove(target);
+    }
+
+    // 统计剩余玩家
+    public synchronized List<Creature> playerRemain() {
+        List<Creature> playerRemain = new ArrayList<>();
+
+        for (Creature c : this.getCreatures()) {
+            if (c.type() == CreatureType.PLAYER) {
+                playerRemain.add(c);
+            }
+        }
+        return playerRemain;
+    }
+
+    // 统计剩余怪物数
+    public synchronized List<Creature> monsterRemain() {
+        List<Creature> monsterRemain = new ArrayList<>();
+
+        for (Creature c : this.getCreatures()) {
+            if (c.type() == CreatureType.MONSTER) {
+                monsterRemain.add(c);
+            }
+        }
+        return monsterRemain;
+    }
+
+    // 统计剩余fungus
+    public synchronized List<Creature> fungusRemain() {
+        List<Creature> fungusRemain = new ArrayList<>();
+        for (Creature c : this.getCreatures()) {
+            if (c.type() == CreatureType.FUNGUS) {
+                fungusRemain.add(c);
+            }
+        }
+        return fungusRemain;
+    }
+
+    // 统计剩余medicine
+    public synchronized List<Creature> medicineRemain() {
+        List<Creature> medicineRemain = new ArrayList<>();
+        for (Creature c : this.getCreatures()) {
+            if (c.type() == CreatureType.MEDICINE) {
+                medicineRemain.add(c);
+            }
+        }
+        return medicineRemain;
+    }
+
+    // 统计剩余amplifier
+    public synchronized List<Creature> amplifierRemain() {
+        List<Creature> amplifierRemain = new ArrayList<>();
+        for (Creature c : this.getCreatures()) {
+            if (c.type() == CreatureType.MEDICINE) {
+                amplifierRemain.add(c);
+            }
+        }
+        return amplifierRemain;
+    }
+
+    // setters and getters 序列化输出输入
+    private synchronized void writeObject(ObjectOutputStream oos) throws IOException {
+        oos.defaultWriteObject();
+        // oos.writeObject(creatures);
+    }
+   
+    private synchronized void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        ois.defaultReadObject();
+        for (Creature c : this.creatures){
+            c.setWorld(this);
+            new CreatureAI(c);
+        }
     }
 
     public synchronized void update() {
