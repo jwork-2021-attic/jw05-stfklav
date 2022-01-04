@@ -254,6 +254,7 @@ public class PlayScreen implements Screen, Serializable {
             // 通知玩家
             player.setStatus(gameStatus);
 
+            // 弹出提示
             int res = JOptionPane.showConfirmDialog(null, "已暂停，是否保存当前游戏进度并退出", "Option", JOptionPane.YES_NO_OPTION);
             if (res == JOptionPane.YES_OPTION) {
                 // 点击“是”后执行这个代码块
@@ -261,7 +262,7 @@ public class PlayScreen implements Screen, Serializable {
                 try {
                     serializing();
                 } catch (Exception e) {
-                    // e.printStackTrace();
+                    e.printStackTrace();
                     System.out.println("序列化失败！");
                 }
 

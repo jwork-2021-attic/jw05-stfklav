@@ -17,7 +17,12 @@
  */
 package screen;
 
-import javax.swing.JButton;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+
+import javax.swing.JOptionPane;
 
 import asciiPanel.AsciiPanel;
 
@@ -26,6 +31,51 @@ import asciiPanel.AsciiPanel;
  * @author Aeranythe Echosong
  */
 public class StartScreen extends RestartScreen {
+
+    public Screen reload() {
+        try {
+            FileInputStream fileInputStream = new FileInputStream(Screen.FileName);
+        } catch (FileNotFoundException e) {
+            // TODO: handle exception
+            System.out.println("不存在游戏保存文件");
+            return this;
+        }
+
+        // 弹出提示
+        int res = JOptionPane.showConfirmDialog(null, "是否恢复之前保存的游戏", "Option", JOptionPane.YES_NO_OPTION);
+        if (res == JOptionPane.YES_OPTION) {
+            // 点击“是”后执行这个代码块
+            // 恢复
+            try {
+                return deserializing();
+            } catch (Exception e) {
+                // e.printStackTrace();
+                System.out.println("反序列化失败！");
+            }
+        } else {
+            // 点击“否”后执行这个代码块
+            // 开启新游戏
+           return this;
+        }
+        return this;
+
+    }
+
+    // 反序列化
+    public Screen deserializing() throws IOException, ClassNotFoundException {
+        FileInputStream fileInputStream = new FileInputStream(Screen.FileName);
+        ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+        PlayScreen p = (PlayScreen) objectInputStream.readObject();
+        monster_num = p.MONSTER_NUMBER;
+        fungus_num = p.FUNGUS_NUMBER;
+        medicine_num = p.MEDICINE_NUMBER;
+        amplifier_num = p.AMPLIFIER_NUMBER;
+        level = p.level;
+        p.run();
+        fileInputStream.close();
+        objectInputStream.close();
+        return p;
+    }
 
     @Override
     public Screen displayOutput(AsciiPanel terminal) {
