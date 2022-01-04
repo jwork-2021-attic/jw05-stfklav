@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="com.nju.roguelike.world.WorldTest" time="0.26" tests="1" errors="0" skipped="0" failures="0">
+  <properties>
+    <property name="sun.desktop" value="windows"/>
+    <property name="awt.toolkit" value="sun.awt.windows.WToolkit"/>
+    <property name="java.specification.version" value="11"/>
+    <property name="sun.cpu.isalist" value="amd64"/>
+    <property name="sun.jnu.encoding" value="GBK"/>
+    <property name="java.class.path" value="E:\Java project\jw05-stfklav\roguelike\target\test-classes;E:\Java project\jw05-stfklav\roguelike\target\classes;E:\mavenProject\junit\junit\4.13.2\junit-4.13.2.jar;E:\mavenProject\org\hamcrest\hamcrest-core\1.3\hamcrest-core-1.3.jar;"/>
+    <property name="java.vm.vendor" value="Oracle Corporation"/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="user.variant" value=""/>
+    <property name="java.vendor.url" value="https://openjdk.java.net/"/>
+    <property name="user.timezone" value="Asia/Shanghai"/>
+    <property name="java.vm.specification.version" value="11"/>
+    <property name="os.name" value="Windows 10"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="user.country" value="CN"/>
+    <property name="sun.boot.library.path" value="D:\Java\jdk-11.0.12\bin"/>
+    <property name="sun.java.command" value="C:\Users\87389\AppData\Local\Temp\surefire10327046581714519966\surefirebooter13487689989645913457.jar C:\Users\87389\AppData\Local\Temp\surefire10327046581714519966 2022-01-04T19-25-38_494-jvmRun1 surefire16844403134017506880tmp surefire_05553297829668373448tmp"/>
+    <property name="jdk.debug" value="release"/>
+    <property name="surefire.test.class.path" value="E:\Java project\jw05-stfklav\roguelike\target\test-classes;E:\Java project\jw05-stfklav\roguelike\target\classes;E:\mavenProject\junit\junit\4.13.2\junit-4.13.2.jar;E:\mavenProject\org\hamcrest\hamcrest-core\1.3\hamcrest-core-1.3.jar;"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="user.home" value="C:\Users\87389"/>
+    <property name="user.language" value="zh"/>
+    <property name="java.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.version.date" value="2021-07-20"/>
+    <property name="java.home" value="D:\Java\jdk-11.0.12"/>
+    <property name="file.separator" value="\"/>
+    <property name="basedir" value="E:\Java project\jw05-stfklav\roguelike"/>
+    <property name="java.vm.compressedOopsMode" value="Zero based"/>
+    <property name="line.separator" value="&#10;"/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.awt.graphicsenv" value="sun.awt.Win32GraphicsEnvironment"/>
+    <property name="surefire.real.class.path" value="C:\Users\87389\AppData\Local\Temp\surefire10327046581714519966\surefirebooter13487689989645913457.jar"/>
+    <property name="user.script" value=""/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="java.runtime.version" value="11.0.12+8-LTS-237"/>
+    <property name="user.name" value="87389"/>
+    <property name="path.separator" value=";"/>
+    <property name="os.version" value="10.0"/>
+    <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
+    <property name="file.encoding" value="GBK"/>
+    <property name="java.vm.name" value="Java HotSpot(TM) 64-Bit Server VM"/>
+    <property name="java.vendor.version" value="18.9"/>
+    <property name="localRepository" value="E:\mavenProject"/>
+    <property name="java.vendor.url.bug" value="https://bugreport.java.com/bugreport/"/>
+    <property name="java.io.tmpdir" value="C:\Users\87389\AppData\Local\Temp\"/>
+    <property name="java.version" value="11.0.12"/>
+    <property name="user.dir" value="E:\Java project\jw05-stfklav\roguelike"/>
+    <property name="os.arch" value="amd64"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="java.awt.printerjob" value="sun.awt.windows.WPrinterJob"/>
+    <property name="sun.os.patch.level" value=""/>
+    <property name="java.library.path" value="D:\Java\jdk-11.0.12\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;D:\Java\jdk-11.0.12\bin;C:\Program Files\Common Files\Oracle\Java\javapath;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;D:\python\Scripts\;D:\python\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NGX;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;D:\Matlab\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;D:\VScode\Microsoft VS Code\bin;D:\Git\Git\cmd;D:\GitLFS\Git LFS;C:\Program Files\dotnet\;D:\Maven\apache-maven-3.8.4\bin;D:\Maven\apache-maven-3.8.4\bin;D:\Kubernetes\kubectl;D:\Kubernetes\minikube;D:\Kubernetes\minikube\install\Minikube;D:\Android\Sdk\platform-tools;D:\Android\Sdk\tools;D:\Android\Sdk\build-tools\30.0.2;C:\Users\87389\AppData\Roaming\Python\Python39\Scripts;D:\Android\Sdk\build-tools\30.0.2;D:\ctex\UserData\miktex\bin;D:\ctex\MiKTeX\miktex\bin;D:\ctex\CTeX\ctex\bin;D:\ctex\CTeX\cct\bin;D:\ctex\CTeX\ty\bin;D:\ctex\GSview\gsview;D:\ctex\Ghostscript\gs9.05\bin;D:\ctex\WinEdt;C:\Users\87389\AppData\Local\Microsoft\WindowsApps;E:\intelFPGA_lite\17.1\modelsim_ase\win32aloem;E:\intelFPGA_lite\17.1\modelsim_ae\win32aloem;C:\Users\87389\AppData\Local\GitHubDesktop\bin;C:\Users\87389\.dotnet\tools;."/>
+    <property name="java.vendor" value="Oracle Corporation"/>
+    <property name="java.vm.info" value="mixed mode"/>
+    <property name="java.vm.version" value="11.0.12+8-LTS-237"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="java.class.version" value="55.0"/>
+  </properties>
+  <testcase name="SerializingAndDeserializing" classname="com.nju.roguelike.world.WorldTest" time="0.165"/>
+</testsuite>

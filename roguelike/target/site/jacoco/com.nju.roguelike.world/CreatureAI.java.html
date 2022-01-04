@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CreatureAI.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">roguelike</a> &gt; <a href="index.source.html" class="el_package">com.nju.roguelike.world</a> &gt; <span class="el_source">CreatureAI.java</span></div><h1>CreatureAI.java</h1><pre class="source lang-java linenums">package com.nju.roguelike.world;
+
+public class CreatureAI {
+
+    protected Creature creature;
+
+<span class="fc" id="L7">    public CreatureAI(Creature creature) {</span>
+<span class="fc" id="L8">        this.creature = creature;</span>
+<span class="fc" id="L9">        this.creature.setAI(this);</span>
+<span class="fc" id="L10">    }</span>
+
+    public void onEnter(int x, int y, Tile tile) {
+<span class="nc" id="L13">    }</span>
+
+    public void onUpdate() {
+<span class="nc" id="L16">    }</span>
+
+    public void onNotify(String message) {
+<span class="nc" id="L19">    }</span>
+
+    public boolean canSee(int x, int y) {
+<span class="nc" id="L22">        if ((creature.x() - x) * (creature.x() - x) + (creature.y() - y) * (creature.y() - y) &gt; creature.visionRadius()</span>
+<span class="nc bnc" id="L23" title="All 2 branches missed.">                * creature.visionRadius()) {</span>
+<span class="nc" id="L24">            return false;</span>
+        }
+        /*for (Point p : new Line(creature.x(), creature.y(), x, y)) {
+            if (creature.tile(p.x, p.y).isGround() || (p.x == x &amp;&amp; p.y == y)) {
+                continue;
+            }
+            return false;
+        }*/
+<span class="nc" id="L32">        return true;</span>
+    }
+
+    public void run() {
+<span class="nc" id="L36">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

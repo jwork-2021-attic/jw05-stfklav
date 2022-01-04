@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PlayerAI.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">roguelike</a> &gt; <a href="index.source.html" class="el_package">com.nju.roguelike.world</a> &gt; <span class="el_source">PlayerAI.java</span></div><h1>PlayerAI.java</h1><pre class="source lang-java linenums">package com.nju.roguelike.world;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.awt.event.KeyEvent;
+
+public class PlayerAI extends CreatureAI {
+
+    private List&lt;String&gt; messages;
+
+    public PlayerAI(Creature creature, List&lt;String&gt; messages) {
+<span class="nc" id="L12">        super(creature);</span>
+<span class="nc" id="L13">        this.messages = messages;</span>
+<span class="nc" id="L14">    }</span>
+
+    public void onEnter(int x, int y, Tile tile) {
+<span class="nc bnc" id="L17" title="All 2 branches missed.">        if (tile.isGround()) {</span>
+<span class="nc" id="L18">            creature.setX(x);</span>
+<span class="nc" id="L19">            creature.setY(y);</span>
+<span class="nc bnc" id="L20" title="All 2 branches missed.">        } else if (tile.isWall()) {</span>
+<span class="nc" id="L21">            this.creature.dig(x, y);</span>
+<span class="nc" id="L22">            creature.setX(x);</span>
+<span class="nc" id="L23">            creature.setY(y);</span>
+        }
+<span class="nc" id="L25">    }</span>
+
+    @Override
+    public void run() {
+<span class="nc bnc" id="L29" title="All 2 branches missed.">        while (this.creature.hp() &gt; 0) {</span>
+<span class="nc bnc" id="L30" title="All 2 branches missed.">            if (creature.getStatus()) {</span>
+<span class="nc bnc" id="L31" title="All 9 branches missed.">                switch (this.creature.keyevent()) {</span>
+                    // 上下左右移动
+                    case KeyEvent.VK_LEFT:
+<span class="nc" id="L34">                        creature.moveBy(-1, 0);</span>
+<span class="nc" id="L35">                        break;</span>
+                    case KeyEvent.VK_RIGHT:
+<span class="nc" id="L37">                        creature.moveBy(1, 0);</span>
+<span class="nc" id="L38">                        break;</span>
+                    case KeyEvent.VK_UP:
+<span class="nc" id="L40">                        creature.moveBy(0, -1);</span>
+<span class="nc" id="L41">                        break;</span>
+                    case KeyEvent.VK_DOWN:
+<span class="nc" id="L43">                        creature.moveBy(0, 1);</span>
+<span class="nc" id="L44">                        break;</span>
+                    // w a s d放墙
+                    case KeyEvent.VK_A:
+<span class="nc" id="L47">                        creature.setWall(-1, 0);</span>
+<span class="nc" id="L48">                        break;</span>
+                    case KeyEvent.VK_D:
+<span class="nc" id="L50">                        creature.setWall(1, 0);</span>
+<span class="nc" id="L51">                        break;</span>
+                    case KeyEvent.VK_W:
+<span class="nc" id="L53">                        creature.setWall(0, -1);</span>
+<span class="nc" id="L54">                        break;</span>
+                    case KeyEvent.VK_S:
+<span class="nc" id="L56">                        creature.setWall(0, 1);</span>
+<span class="nc" id="L57">                        break;</span>
+                    default:
+                        break;
+                }
+            }
+
+            // 每次回到Enter键
+<span class="nc" id="L64">            creature.setKeyEvent(KeyEvent.VK_ENTER);</span>
+            try {
+<span class="nc" id="L66">                TimeUnit.MILLISECONDS.sleep(100);</span>
+<span class="nc" id="L67">            } catch (InterruptedException e) {</span>
+                // TODO: handle exception
+<span class="nc" id="L69">                e.printStackTrace();</span>
+<span class="nc" id="L70">            }</span>
+            // Thread.yield();
+        }
+<span class="nc" id="L73">        return;</span>
+    }
+
+    public void onNotify(String message) {
+<span class="nc" id="L77">        this.messages.add(message);</span>
+<span class="nc" id="L78">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

@@ -1,0 +1,975 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AsciiPanel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">roguelike</a> &gt; <a href="index.source.html" class="el_package">asciiPanel</a> &gt; <span class="el_source">AsciiPanel.java</span></div><h1>AsciiPanel.java</h1><pre class="source lang-java linenums">package asciiPanel;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.awt.image.LookupOp;
+import java.awt.image.ShortLookupTable;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+import javax.swing.JPanel;
+
+/**
+ * This simulates a code page 437 ASCII terminal display.
+ * 
+ * @author Trystan Spangler
+ */
+public class AsciiPanel extends JPanel {
+    private static final long serialVersionUID = -4167851861147593092L;
+
+    /**
+     * The color black (pure black).
+     */
+<span class="fc" id="L26">    public static Color black = new Color(0, 0, 0);</span>
+
+    /**
+     * The color red.
+     */
+<span class="fc" id="L31">    public static Color red = new Color(128, 0, 0);</span>
+
+    /**
+     * The color green.
+     */
+<span class="fc" id="L36">    public static Color green = new Color(0, 128, 0);</span>
+
+    /**
+     * The color yellow.
+     */
+<span class="fc" id="L41">    public static Color yellow = new Color(128, 128, 0);</span>
+
+    /**
+     * The color blue.
+     */
+<span class="fc" id="L46">    public static Color blue = new Color(0, 0, 128);</span>
+
+    /**
+     * The color magenta.
+     */
+<span class="fc" id="L51">    public static Color magenta = new Color(128, 0, 128);</span>
+
+    /**
+     * The color cyan.
+     */
+<span class="fc" id="L56">    public static Color cyan = new Color(0, 128, 128);</span>
+
+    /**
+     * The color white (light gray).
+     */
+<span class="fc" id="L61">    public static Color white = new Color(192, 192, 192);</span>
+
+    /**
+     * A brighter black (dark gray).
+     */
+<span class="fc" id="L66">    public static Color brightBlack = new Color(128, 128, 128);</span>
+
+    /**
+     * A brighter red.
+     */
+<span class="fc" id="L71">    public static Color brightRed = new Color(255, 0, 0);</span>
+
+    /**
+     * A brighter green.
+     */
+<span class="fc" id="L76">    public static Color brightGreen = new Color(0, 255, 0);</span>
+
+    /**
+     * A brighter yellow.
+     */
+<span class="fc" id="L81">    public static Color brightYellow = new Color(255, 255, 0);</span>
+
+    /**
+     * A brighter blue.
+     */
+<span class="fc" id="L86">    public static Color brightBlue = new Color(0, 0, 255);</span>
+
+    /**
+     * A brighter magenta.
+     */
+<span class="fc" id="L91">    public static Color brightMagenta = new Color(255, 0, 255);</span>
+
+    /**
+     * A brighter cyan.
+     */
+<span class="fc" id="L96">    public static Color brightCyan = new Color(0, 255, 255);</span>
+
+    /**
+     * A brighter white (pure white).
+     */
+<span class="fc" id="L101">    public static Color brightWhite = new Color(255, 255, 255);</span>
+
+    private Image offscreenBuffer;
+    private Graphics offscreenGraphics;
+    private int widthInCharacters;
+    private int heightInCharacters;
+<span class="nc" id="L107">    private int charWidth = 9;</span>
+<span class="nc" id="L108">    private int charHeight = 16;</span>
+<span class="nc" id="L109">    private String terminalFontFile = &quot;cp437_9x16.png&quot;;</span>
+    private Color defaultBackgroundColor;
+    private Color defaultForegroundColor;
+    private int cursorX;
+    private int cursorY;
+    private BufferedImage glyphSprite;
+    private BufferedImage[] glyphs;
+    private char[][] chars;
+    private Color[][] backgroundColors;
+    private Color[][] foregroundColors;
+    private char[][] oldChars;
+    private Color[][] oldBackgroundColors;
+    private Color[][] oldForegroundColors;
+    private AsciiFont asciiFont;
+
+    /**
+     * Gets the height, in pixels, of a character.
+     * 
+     * @return
+     */
+    public int getCharHeight() {
+<span class="nc" id="L130">        return charHeight;</span>
+    }
+
+    /**
+     * Gets the width, in pixels, of a character.
+     * 
+     * @return
+     */
+    public int getCharWidth() {
+<span class="nc" id="L139">        return charWidth;</span>
+    }
+
+    /**
+     * Gets the height in characters. A standard terminal is 24 characters high.
+     * 
+     * @return
+     */
+    public int getHeightInCharacters() {
+<span class="nc" id="L148">        return heightInCharacters;</span>
+    }
+
+    /**
+     * Gets the width in characters. A standard terminal is 80 characters wide.
+     * 
+     * @return
+     */
+    public int getWidthInCharacters() {
+<span class="nc" id="L157">        return widthInCharacters;</span>
+    }
+
+    /**
+     * Gets the distance from the left new text will be written to.
+     * 
+     * @return
+     */
+    public int getCursorX() {
+<span class="nc" id="L166">        return cursorX;</span>
+    }
+
+    /**
+     * Sets the distance from the left new text will be written to. This should be
+     * equal to or greater than 0 and less than the the width in characters.
+     * 
+     * @param cursorX the distance from the left new text should be written to
+     */
+    public void setCursorX(int cursorX) {
+<span class="nc bnc" id="L176" title="All 4 branches missed.">        if (cursorX &lt; 0 || cursorX &gt;= widthInCharacters)</span>
+<span class="nc" id="L177">            throw new IllegalArgumentException(</span>
+                    &quot;cursorX &quot; + cursorX + &quot; must be within range [0,&quot; + widthInCharacters + &quot;).&quot;);
+
+<span class="nc" id="L180">        this.cursorX = cursorX;</span>
+<span class="nc" id="L181">    }</span>
+
+    /**
+     * Gets the distance from the top new text will be written to.
+     * 
+     * @return
+     */
+    public int getCursorY() {
+<span class="nc" id="L189">        return cursorY;</span>
+    }
+
+    /**
+     * Sets the distance from the top new text will be written to. This should be
+     * equal to or greater than 0 and less than the the height in characters.
+     * 
+     * @param cursorY the distance from the top new text should be written to
+     */
+    public void setCursorY(int cursorY) {
+<span class="nc bnc" id="L199" title="All 4 branches missed.">        if (cursorY &lt; 0 || cursorY &gt;= heightInCharacters)</span>
+<span class="nc" id="L200">            throw new IllegalArgumentException(</span>
+                    &quot;cursorY &quot; + cursorY + &quot; must be within range [0,&quot; + heightInCharacters + &quot;).&quot;);
+
+<span class="nc" id="L203">        this.cursorY = cursorY;</span>
+<span class="nc" id="L204">    }</span>
+
+    /**
+     * Sets the x and y position of where new text will be written to. The origin
+     * (0,0) is the upper left corner. The x should be equal to or greater than 0
+     * and less than the the width in characters. The y should be equal to or
+     * greater than 0 and less than the the height in characters.
+     * 
+     * @param x the distance from the left new text should be written to
+     * @param y the distance from the top new text should be written to
+     */
+    public void setCursorPosition(int x, int y) {
+<span class="nc" id="L216">        setCursorX(x);</span>
+<span class="nc" id="L217">        setCursorY(y);</span>
+<span class="nc" id="L218">    }</span>
+
+    /**
+     * Gets the default background color that is used when writing new text.
+     * 
+     * @return
+     */
+    public Color getDefaultBackgroundColor() {
+<span class="nc" id="L226">        return defaultBackgroundColor;</span>
+    }
+
+    /**
+     * Sets the default background color that is used when writing new text.
+     * 
+     * @param defaultBackgroundColor
+     */
+    public void setDefaultBackgroundColor(Color defaultBackgroundColor) {
+<span class="nc bnc" id="L235" title="All 2 branches missed.">        if (defaultBackgroundColor == null)</span>
+<span class="nc" id="L236">            throw new NullPointerException(&quot;defaultBackgroundColor must not be null.&quot;);</span>
+
+<span class="nc" id="L238">        this.defaultBackgroundColor = defaultBackgroundColor;</span>
+<span class="nc" id="L239">    }</span>
+
+    /**
+     * Gets the default foreground color that is used when writing new text.
+     * 
+     * @return
+     */
+    public Color getDefaultForegroundColor() {
+<span class="nc" id="L247">        return defaultForegroundColor;</span>
+    }
+
+    /**
+     * Sets the default foreground color that is used when writing new text.
+     * 
+     * @param defaultForegroundColor
+     */
+    public void setDefaultForegroundColor(Color defaultForegroundColor) {
+<span class="nc bnc" id="L256" title="All 2 branches missed.">        if (defaultForegroundColor == null)</span>
+<span class="nc" id="L257">            throw new NullPointerException(&quot;defaultForegroundColor must not be null.&quot;);</span>
+
+<span class="nc" id="L259">        this.defaultForegroundColor = defaultForegroundColor;</span>
+<span class="nc" id="L260">    }</span>
+
+    /**
+     * Gets the currently selected font
+     * 
+     * @return
+     */
+    public AsciiFont getAsciiFont() {
+<span class="nc" id="L268">        return asciiFont;</span>
+    }
+
+    /**
+     * Sets the used font. It is advisable to make sure the parent component is
+     * properly sized after setting the font as the panel dimensions will most
+     * likely change
+     * 
+     * @param font
+     */
+    public void setAsciiFont(AsciiFont font) {
+<span class="nc bnc" id="L279" title="All 2 branches missed.">        if (this.asciiFont == font) {</span>
+<span class="nc" id="L280">            return;</span>
+        }
+<span class="nc" id="L282">        this.asciiFont = font;</span>
+
+<span class="nc" id="L284">        this.charHeight = font.getHeight();</span>
+<span class="nc" id="L285">        this.charWidth = font.getWidth();</span>
+<span class="nc" id="L286">        this.terminalFontFile = font.getFontFilename();</span>
+
+<span class="nc" id="L288">        Dimension panelSize = new Dimension(charWidth * widthInCharacters, charHeight * heightInCharacters);</span>
+<span class="nc" id="L289">        setPreferredSize(panelSize);</span>
+
+<span class="nc" id="L291">        glyphs = new BufferedImage[256];</span>
+
+<span class="nc" id="L293">        offscreenBuffer = new BufferedImage(panelSize.width, panelSize.height, BufferedImage.TYPE_INT_RGB);</span>
+<span class="nc" id="L294">        offscreenGraphics = offscreenBuffer.getGraphics();</span>
+
+<span class="nc" id="L296">        loadGlyphs();</span>
+
+<span class="nc" id="L298">        oldChars = new char[widthInCharacters][heightInCharacters];</span>
+<span class="nc" id="L299">    }</span>
+
+    /**
+     * Class constructor. Default size is 80x24.
+     */
+    public AsciiPanel() {
+<span class="nc" id="L305">        this(80, 24);</span>
+<span class="nc" id="L306">    }</span>
+
+    /**
+     * Class constructor specifying the width and height in characters.
+     * 
+     * @param width
+     * @param height
+     */
+    public AsciiPanel(int width, int height) {
+<span class="nc" id="L315">        this(width, height, null);</span>
+<span class="nc" id="L316">    }</span>
+
+    /**
+     * Class constructor specifying the width and height in characters and the
+     * AsciiFont
+     * 
+     * @param width
+     * @param height
+     * @param font   if passing null, standard font CP437_9x16 will be used
+     */
+    public AsciiPanel(int width, int height, AsciiFont font) {
+<span class="nc" id="L327">        super();</span>
+
+<span class="nc bnc" id="L329" title="All 2 branches missed.">        if (width &lt; 1) {</span>
+<span class="nc" id="L330">            throw new IllegalArgumentException(&quot;width &quot; + width + &quot; must be greater than 0.&quot;);</span>
+        }
+
+<span class="nc bnc" id="L333" title="All 2 branches missed.">        if (height &lt; 1) {</span>
+<span class="nc" id="L334">            throw new IllegalArgumentException(&quot;height &quot; + height + &quot; must be greater than 0.&quot;);</span>
+        }
+
+<span class="nc" id="L337">        widthInCharacters = width;</span>
+<span class="nc" id="L338">        heightInCharacters = height;</span>
+
+<span class="nc" id="L340">        defaultBackgroundColor = black;</span>
+<span class="nc" id="L341">        defaultForegroundColor = white;</span>
+
+<span class="nc" id="L343">        chars = new char[widthInCharacters][heightInCharacters];</span>
+<span class="nc" id="L344">        backgroundColors = new Color[widthInCharacters][heightInCharacters];</span>
+<span class="nc" id="L345">        foregroundColors = new Color[widthInCharacters][heightInCharacters];</span>
+
+<span class="nc" id="L347">        oldBackgroundColors = new Color[widthInCharacters][heightInCharacters];</span>
+<span class="nc" id="L348">        oldForegroundColors = new Color[widthInCharacters][heightInCharacters];</span>
+
+<span class="nc bnc" id="L350" title="All 2 branches missed.">        if (font == null) {</span>
+<span class="nc" id="L351">            font = AsciiFont.CP437_9x16;</span>
+        }
+<span class="nc" id="L353">        setAsciiFont(font);</span>
+<span class="nc" id="L354">    }</span>
+
+    @Override
+    public void update(Graphics g) {
+<span class="nc" id="L358">        paint(g);</span>
+<span class="nc" id="L359">    }</span>
+
+    @Override
+    public void paint(Graphics g) {
+<span class="nc bnc" id="L363" title="All 2 branches missed.">        if (g == null)</span>
+<span class="nc" id="L364">            throw new NullPointerException();</span>
+
+<span class="nc bnc" id="L366" title="All 2 branches missed.">        for (int x = 0; x &lt; widthInCharacters; x++) {</span>
+<span class="nc bnc" id="L367" title="All 2 branches missed.">            for (int y = 0; y &lt; heightInCharacters; y++) {</span>
+<span class="nc bnc" id="L368" title="All 6 branches missed.">                if (oldBackgroundColors[x][y] == backgroundColors[x][y]</span>
+                        &amp;&amp; oldForegroundColors[x][y] == foregroundColors[x][y] &amp;&amp; oldChars[x][y] == chars[x][y])
+<span class="nc" id="L370">                    continue;</span>
+
+<span class="nc" id="L372">                Color bg = backgroundColors[x][y];</span>
+<span class="nc" id="L373">                Color fg = foregroundColors[x][y];</span>
+
+<span class="nc" id="L375">                LookupOp op = setColors(bg, fg);</span>
+<span class="nc" id="L376">                BufferedImage img = op.filter(glyphs[chars[x][y]], null);</span>
+<span class="nc" id="L377">                offscreenGraphics.drawImage(img, x * charWidth, y * charHeight, null);</span>
+
+<span class="nc" id="L379">                oldBackgroundColors[x][y] = backgroundColors[x][y];</span>
+<span class="nc" id="L380">                oldForegroundColors[x][y] = foregroundColors[x][y];</span>
+<span class="nc" id="L381">                oldChars[x][y] = chars[x][y];</span>
+            }
+        }
+
+<span class="nc" id="L385">        g.drawImage(offscreenBuffer, 0, 0, this);</span>
+<span class="nc" id="L386">    }</span>
+
+    private void loadGlyphs() {
+        try {
+<span class="nc" id="L390">            System.out.println(AsciiPanel.class.getClassLoader().getResource(&quot;&quot;));</span>
+<span class="nc" id="L391">            glyphSprite = ImageIO.read(AsciiPanel.class.getClassLoader().getResource(terminalFontFile));</span>
+<span class="nc" id="L392">        } catch (IOException e) {</span>
+<span class="nc" id="L393">            System.err.println(&quot;loadGlyphs(): &quot; + e.getMessage());</span>
+<span class="nc" id="L394">        }</span>
+
+<span class="nc bnc" id="L396" title="All 2 branches missed.">        for (int i = 0; i &lt; 256; i++) {</span>
+<span class="nc" id="L397">            int sx = (i % 16) * charWidth;</span>
+<span class="nc" id="L398">            int sy = (i / 16) * charHeight;</span>
+
+<span class="nc" id="L400">            glyphs[i] = new BufferedImage(charWidth, charHeight, BufferedImage.TYPE_INT_ARGB);</span>
+<span class="nc" id="L401">            glyphs[i].getGraphics().drawImage(glyphSprite, 0, 0, charWidth, charHeight, sx, sy, sx + charWidth,</span>
+                    sy + charHeight, null);
+        }
+<span class="nc" id="L404">    }</span>
+
+    /**
+     * Create a &lt;code&gt;LookupOp&lt;/code&gt; object (lookup table) mapping the original
+     * pixels to the background and foreground colors, respectively.
+     * 
+     * @param bgColor the background color
+     * @param fgColor the foreground color
+     * @return the &lt;code&gt;LookupOp&lt;/code&gt; object (lookup table)
+     */
+    private LookupOp setColors(Color bgColor, Color fgColor) {
+<span class="nc" id="L415">        short[] a = new short[256];</span>
+<span class="nc" id="L416">        short[] r = new short[256];</span>
+<span class="nc" id="L417">        short[] g = new short[256];</span>
+<span class="nc" id="L418">        short[] b = new short[256];</span>
+
+<span class="nc" id="L420">        byte bga = (byte) (bgColor.getAlpha());</span>
+<span class="nc" id="L421">        byte bgr = (byte) (bgColor.getRed());</span>
+<span class="nc" id="L422">        byte bgg = (byte) (bgColor.getGreen());</span>
+<span class="nc" id="L423">        byte bgb = (byte) (bgColor.getBlue());</span>
+
+<span class="nc" id="L425">        byte fga = (byte) (fgColor.getAlpha());</span>
+<span class="nc" id="L426">        byte fgr = (byte) (fgColor.getRed());</span>
+<span class="nc" id="L427">        byte fgg = (byte) (fgColor.getGreen());</span>
+<span class="nc" id="L428">        byte fgb = (byte) (fgColor.getBlue());</span>
+
+<span class="nc bnc" id="L430" title="All 2 branches missed.">        for (int i = 0; i &lt; 256; i++) {</span>
+<span class="nc bnc" id="L431" title="All 2 branches missed.">            if (i == 0) {</span>
+<span class="nc" id="L432">                a[i] = bga;</span>
+<span class="nc" id="L433">                r[i] = bgr;</span>
+<span class="nc" id="L434">                g[i] = bgg;</span>
+<span class="nc" id="L435">                b[i] = bgb;</span>
+            } else {
+<span class="nc" id="L437">                a[i] = fga;</span>
+<span class="nc" id="L438">                r[i] = fgr;</span>
+<span class="nc" id="L439">                g[i] = fgg;</span>
+<span class="nc" id="L440">                b[i] = fgb;</span>
+            }
+        }
+
+<span class="nc" id="L444">        short[][] table = { r, g, b, a };</span>
+<span class="nc" id="L445">        return new LookupOp(new ShortLookupTable(0, table), null);</span>
+    }
+
+    /**
+     * Clear the entire screen to whatever the default background color is.
+     * 
+     * @return this for convenient chaining of method calls
+     */
+    public AsciiPanel clear() {
+<span class="nc" id="L454">        return clear(' ', 0, 0, widthInCharacters, heightInCharacters, defaultForegroundColor, defaultBackgroundColor);</span>
+    }
+
+    /**
+     * Clear the entire screen with the specified character and whatever the default
+     * foreground and background colors are.
+     * 
+     * @param character the character to write
+     * @return this for convenient chaining of method calls
+     */
+    public AsciiPanel clear(char character) {
+<span class="nc bnc" id="L465" title="All 4 branches missed.">        if (character &lt; 0 || character &gt;= glyphs.length)</span>
+<span class="nc" id="L466">            throw new IllegalArgumentException(</span>
+                    &quot;character &quot; + character + &quot; must be within range [0,&quot; + glyphs.length + &quot;].&quot;);
+
+<span class="nc" id="L469">        return clear(character, 0, 0, widthInCharacters, heightInCharacters, defaultForegroundColor,</span>
+                defaultBackgroundColor);
+    }
+
+    /**
+     * Clear the entire screen with the specified character and whatever the
+     * specified foreground and background colors are.
+     * 
+     * @param character  the character to write
+     * @param foreground the foreground color or null to use the default
+     * @param background the background color or null to use the default
+     * @return this for convenient chaining of method calls
+     */
+    public AsciiPanel clear(char character, Color foreground, Color background) {
+<span class="nc bnc" id="L483" title="All 4 branches missed.">        if (character &lt; 0 || character &gt;= glyphs.length)</span>
+<span class="nc" id="L484">            throw new IllegalArgumentException(</span>
+                    &quot;character &quot; + character + &quot; must be within range [0,&quot; + glyphs.length + &quot;].&quot;);
+
+<span class="nc" id="L487">        return clear(character, 0, 0, widthInCharacters, heightInCharacters, foreground, background);</span>
+    }
+
+    /**
+     * Clear the section of the screen with the specified character and whatever the
+     * default foreground and background colors are. The cursor position will not be
+     * modified.
+     * 
+     * @param character the character to write
+     * @param x         the distance from the left to begin writing from
+     * @param y         the distance from the top to begin writing from
+     * @param width     the height of the section to clear
+     * @param height    the width of the section to clear
+     * @return this for convenient chaining of method calls
+     */
+    public AsciiPanel clear(char character, int x, int y, int width, int height) {
+<span class="nc bnc" id="L503" title="All 4 branches missed.">        if (character &lt; 0 || character &gt;= glyphs.length)</span>
+<span class="nc" id="L504">            throw new IllegalArgumentException(</span>
+                    &quot;character &quot; + character + &quot; must be within range [0,&quot; + glyphs.length + &quot;].&quot;);
+
+<span class="nc bnc" id="L507" title="All 4 branches missed.">        if (x &lt; 0 || x &gt;= widthInCharacters)</span>
+<span class="nc" id="L508">            throw new IllegalArgumentException(&quot;x &quot; + x + &quot; must be within range [0,&quot; + widthInCharacters + &quot;).&quot;);</span>
+
+<span class="nc bnc" id="L510" title="All 4 branches missed.">        if (y &lt; 0 || y &gt;= heightInCharacters)</span>
+<span class="nc" id="L511">            throw new IllegalArgumentException(&quot;y &quot; + y + &quot; must be within range [0,&quot; + heightInCharacters + &quot;).&quot;);</span>
+
+<span class="nc bnc" id="L513" title="All 2 branches missed.">        if (width &lt; 1)</span>
+<span class="nc" id="L514">            throw new IllegalArgumentException(&quot;width &quot; + width + &quot; must be greater than 0.&quot;);</span>
+
+<span class="nc bnc" id="L516" title="All 2 branches missed.">        if (height &lt; 1)</span>
+<span class="nc" id="L517">            throw new IllegalArgumentException(&quot;height &quot; + height + &quot; must be greater than 0.&quot;);</span>
+
+<span class="nc bnc" id="L519" title="All 2 branches missed.">        if (x + width &gt; widthInCharacters)</span>
+<span class="nc" id="L520">            throw new IllegalArgumentException(</span>
+                    &quot;x + width &quot; + (x + width) + &quot; must be less than &quot; + (widthInCharacters + 1) + &quot;.&quot;);
+
+<span class="nc bnc" id="L523" title="All 2 branches missed.">        if (y + height &gt; heightInCharacters)</span>
+<span class="nc" id="L524">            throw new IllegalArgumentException(</span>
+                    &quot;y + height &quot; + (y + height) + &quot; must be less than &quot; + (heightInCharacters + 1) + &quot;.&quot;);
+
+<span class="nc" id="L527">        return clear(character, x, y, width, height, defaultForegroundColor, defaultBackgroundColor);</span>
+    }
+
+    /**
+     * Clear the section of the screen with the specified character and whatever the
+     * specified foreground and background colors are.
+     * 
+     * @param character  the character to write
+     * @param x          the distance from the left to begin writing from
+     * @param y          the distance from the top to begin writing from
+     * @param width      the height of the section to clear
+     * @param height     the width of the section to clear
+     * @param foreground the foreground color or null to use the default
+     * @param background the background color or null to use the default
+     * @return this for convenient chaining of method calls
+     */
+    public AsciiPanel clear(char character, int x, int y, int width, int height, Color foreground, Color background) {
+<span class="nc bnc" id="L544" title="All 4 branches missed.">        if (character &lt; 0 || character &gt;= glyphs.length)</span>
+<span class="nc" id="L545">            throw new IllegalArgumentException(</span>
+                    &quot;character &quot; + character + &quot; must be within range [0,&quot; + glyphs.length + &quot;].&quot;);
+
+<span class="nc bnc" id="L548" title="All 4 branches missed.">        if (x &lt; 0 || x &gt;= widthInCharacters)</span>
+<span class="nc" id="L549">            throw new IllegalArgumentException(&quot;x &quot; + x + &quot; must be within range [0,&quot; + widthInCharacters + &quot;)&quot;);</span>
+
+<span class="nc bnc" id="L551" title="All 4 branches missed.">        if (y &lt; 0 || y &gt;= heightInCharacters)</span>
+<span class="nc" id="L552">            throw new IllegalArgumentException(&quot;y &quot; + y + &quot; must be within range [0,&quot; + heightInCharacters + &quot;)&quot;);</span>
+
+<span class="nc bnc" id="L554" title="All 2 branches missed.">        if (width &lt; 1)</span>
+<span class="nc" id="L555">            throw new IllegalArgumentException(&quot;width &quot; + width + &quot; must be greater than 0.&quot;);</span>
+
+<span class="nc bnc" id="L557" title="All 2 branches missed.">        if (height &lt; 1)</span>
+<span class="nc" id="L558">            throw new IllegalArgumentException(&quot;height &quot; + height + &quot; must be greater than 0.&quot;);</span>
+
+<span class="nc bnc" id="L560" title="All 2 branches missed.">        if (x + width &gt; widthInCharacters)</span>
+<span class="nc" id="L561">            throw new IllegalArgumentException(</span>
+                    &quot;x + width &quot; + (x + width) + &quot; must be less than &quot; + (widthInCharacters + 1) + &quot;.&quot;);
+
+<span class="nc bnc" id="L564" title="All 2 branches missed.">        if (y + height &gt; heightInCharacters)</span>
+<span class="nc" id="L565">            throw new IllegalArgumentException(</span>
+                    &quot;y + height &quot; + (y + height) + &quot; must be less than &quot; + (heightInCharacters + 1) + &quot;.&quot;);
+
+<span class="nc" id="L568">        int originalCursorX = cursorX;</span>
+<span class="nc" id="L569">        int originalCursorY = cursorY;</span>
+<span class="nc bnc" id="L570" title="All 2 branches missed.">        for (int xo = x; xo &lt; x + width; xo++) {</span>
+<span class="nc bnc" id="L571" title="All 2 branches missed.">            for (int yo = y; yo &lt; y + height; yo++) {</span>
+<span class="nc" id="L572">                write(character, xo, yo, foreground, background);</span>
+            }
+        }
+<span class="nc" id="L575">        cursorX = originalCursorX;</span>
+<span class="nc" id="L576">        cursorY = originalCursorY;</span>
+
+<span class="nc" id="L578">        return this;</span>
+    }
+
+    /**
+     * Write a character to the cursor's position. This updates the cursor's
+     * position.
+     * 
+     * @param character the character to write
+     * @return this for convenient chaining of method calls
+     */
+    public AsciiPanel write(char character) {
+<span class="nc bnc" id="L589" title="All 4 branches missed.">        if (character &lt; 0 || character &gt; glyphs.length)</span>
+<span class="nc" id="L590">            throw new IllegalArgumentException(</span>
+                    &quot;character &quot; + character + &quot; must be within range [0,&quot; + glyphs.length + &quot;].&quot;);
+
+<span class="nc" id="L593">        return write(character, cursorX, cursorY, defaultForegroundColor, defaultBackgroundColor);</span>
+    }
+
+    /**
+     * Write a character to the cursor's position with the specified foreground
+     * color. This updates the cursor's position but not the default foreground
+     * color.
+     * 
+     * @param character  the character to write
+     * @param foreground the foreground color or null to use the default
+     * @return this for convenient chaining of method calls
+     */
+    public AsciiPanel write(char character, Color foreground) {
+<span class="nc bnc" id="L606" title="All 4 branches missed.">        if (character &lt; 0 || character &gt;= glyphs.length)</span>
+<span class="nc" id="L607">            throw new IllegalArgumentException(</span>
+                    &quot;character &quot; + character + &quot; must be within range [0,&quot; + glyphs.length + &quot;].&quot;);
+
+<span class="nc" id="L610">        return write(character, cursorX, cursorY, foreground, defaultBackgroundColor);</span>
+    }
+
+    /**
+     * Write a character to the cursor's position with the specified foreground and
+     * background colors. This updates the cursor's position but not the default
+     * foreground or background colors.
+     * 
+     * @param character  the character to write
+     * @param foreground the foreground color or null to use the default
+     * @param background the background color or null to use the default
+     * @return this for convenient chaining of method calls
+     */
+    public AsciiPanel write(char character, Color foreground, Color background) {
+<span class="nc bnc" id="L624" title="All 4 branches missed.">        if (character &lt; 0 || character &gt;= glyphs.length)</span>
+<span class="nc" id="L625">            throw new IllegalArgumentException(</span>
+                    &quot;character &quot; + character + &quot; must be within range [0,&quot; + glyphs.length + &quot;].&quot;);
+
+<span class="nc" id="L628">        return write(character, cursorX, cursorY, foreground, background);</span>
+    }
+
+    /**
+     * Write a character to the specified position. This updates the cursor's
+     * position.
+     * 
+     * @param character the character to write
+     * @param x         the distance from the left to begin writing from
+     * @param y         the distance from the top to begin writing from
+     * @return this for convenient chaining of method calls
+     */
+    public AsciiPanel write(char character, int x, int y) {
+<span class="nc bnc" id="L641" title="All 4 branches missed.">        if (character &lt; 0 || character &gt;= glyphs.length)</span>
+<span class="nc" id="L642">            throw new IllegalArgumentException(</span>
+                    &quot;character &quot; + character + &quot; must be within range [0,&quot; + glyphs.length + &quot;].&quot;);
+
+<span class="nc bnc" id="L645" title="All 4 branches missed.">        if (x &lt; 0 || x &gt;= widthInCharacters)</span>
+<span class="nc" id="L646">            throw new IllegalArgumentException(&quot;x &quot; + x + &quot; must be within range [0,&quot; + widthInCharacters + &quot;)&quot;);</span>
+
+<span class="nc bnc" id="L648" title="All 4 branches missed.">        if (y &lt; 0 || y &gt;= heightInCharacters)</span>
+<span class="nc" id="L649">            throw new IllegalArgumentException(&quot;y &quot; + y + &quot; must be within range [0,&quot; + heightInCharacters + &quot;)&quot;);</span>
+
+<span class="nc" id="L651">        return write(character, x, y, defaultForegroundColor, defaultBackgroundColor);</span>
+    }
+
+    /**
+     * Write a character to the specified position with the specified foreground
+     * color. This updates the cursor's position but not the default foreground
+     * color.
+     * 
+     * @param character  the character to write
+     * @param x          the distance from the left to begin writing from
+     * @param y          the distance from the top to begin writing from
+     * @param foreground the foreground color or null to use the default
+     * @return this for convenient chaining of method calls
+     */
+    public AsciiPanel write(char character, int x, int y, Color foreground) {
+<span class="nc bnc" id="L666" title="All 4 branches missed.">        if (character &lt; 0 || character &gt;= glyphs.length)</span>
+<span class="nc" id="L667">            throw new IllegalArgumentException(</span>
+                    &quot;character &quot; + character + &quot; must be within range [0,&quot; + glyphs.length + &quot;].&quot;);
+
+<span class="nc bnc" id="L670" title="All 4 branches missed.">        if (x &lt; 0 || x &gt;= widthInCharacters)</span>
+<span class="nc" id="L671">            throw new IllegalArgumentException(&quot;x &quot; + x + &quot; must be within range [0,&quot; + widthInCharacters + &quot;)&quot;);</span>
+
+<span class="nc bnc" id="L673" title="All 4 branches missed.">        if (y &lt; 0 || y &gt;= heightInCharacters)</span>
+<span class="nc" id="L674">            throw new IllegalArgumentException(&quot;y &quot; + y + &quot; must be within range [0,&quot; + heightInCharacters + &quot;)&quot;);</span>
+
+<span class="nc" id="L676">        return write(character, x, y, foreground, defaultBackgroundColor);</span>
+    }
+
+    /**
+     * Write a character to the specified position with the specified foreground and
+     * background colors. This updates the cursor's position but not the default
+     * foreground or background colors.
+     * 
+     * @param character  the character to write
+     * @param x          the distance from the left to begin writing from
+     * @param y          the distance from the top to begin writing from
+     * @param foreground the foreground color or null to use the default
+     * @param background the background color or null to use the default
+     * @return this for convenient chaining of method calls
+     */
+    public AsciiPanel write(char character, int x, int y, Color foreground, Color background) {
+<span class="nc bnc" id="L692" title="All 4 branches missed.">        if (character &lt; 0 || character &gt;= glyphs.length)</span>
+<span class="nc" id="L693">            throw new IllegalArgumentException(</span>
+                    &quot;character &quot; + character + &quot; must be within range [0,&quot; + glyphs.length + &quot;].&quot;);
+
+<span class="nc bnc" id="L696" title="All 4 branches missed.">        if (x &lt; 0 || x &gt;= widthInCharacters)</span>
+<span class="nc" id="L697">            throw new IllegalArgumentException(&quot;x &quot; + x + &quot; must be within range [0,&quot; + widthInCharacters + &quot;)&quot;);</span>
+
+<span class="nc bnc" id="L699" title="All 4 branches missed.">        if (y &lt; 0 || y &gt;= heightInCharacters)</span>
+<span class="nc" id="L700">            throw new IllegalArgumentException(&quot;y &quot; + y + &quot; must be within range [0,&quot; + heightInCharacters + &quot;)&quot;);</span>
+
+<span class="nc bnc" id="L702" title="All 2 branches missed.">        if (foreground == null)</span>
+<span class="nc" id="L703">            foreground = defaultForegroundColor;</span>
+<span class="nc bnc" id="L704" title="All 2 branches missed.">        if (background == null)</span>
+<span class="nc" id="L705">            background = defaultBackgroundColor;</span>
+
+<span class="nc" id="L707">        chars[x][y] = character;</span>
+<span class="nc" id="L708">        foregroundColors[x][y] = foreground;</span>
+<span class="nc" id="L709">        backgroundColors[x][y] = background;</span>
+<span class="nc" id="L710">        cursorX = x + 1;</span>
+<span class="nc" id="L711">        cursorY = y;</span>
+<span class="nc" id="L712">        return this;</span>
+    }
+
+    /**
+     * Write a string to the cursor's position. This updates the cursor's position.
+     * 
+     * @param string the string to write
+     * @return this for convenient chaining of method calls
+     */
+    public AsciiPanel write(String string) {
+<span class="nc bnc" id="L722" title="All 2 branches missed.">        if (string == null)</span>
+<span class="nc" id="L723">            throw new NullPointerException(&quot;string must not be null&quot;);</span>
+
+<span class="nc bnc" id="L725" title="All 2 branches missed.">        if (cursorX + string.length() &gt; widthInCharacters)</span>
+<span class="nc" id="L726">            throw new IllegalArgumentException(&quot;cursorX + string.length() &quot; + (cursorX + string.length())</span>
+                    + &quot; must be less than &quot; + widthInCharacters + &quot;.&quot;);
+
+<span class="nc" id="L729">        return write(string, cursorX, cursorY, defaultForegroundColor, defaultBackgroundColor);</span>
+    }
+
+    /**
+     * Write a string to the cursor's position with the specified foreground color.
+     * This updates the cursor's position but not the default foreground color.
+     * 
+     * @param string     the string to write
+     * @param foreground the foreground color or null to use the default
+     * @return this for convenient chaining of method calls
+     */
+    public AsciiPanel write(String string, Color foreground) {
+<span class="nc bnc" id="L741" title="All 2 branches missed.">        if (string == null)</span>
+<span class="nc" id="L742">            throw new NullPointerException(&quot;string must not be null&quot;);</span>
+
+<span class="nc bnc" id="L744" title="All 2 branches missed.">        if (cursorX + string.length() &gt; widthInCharacters)</span>
+<span class="nc" id="L745">            throw new IllegalArgumentException(&quot;cursorX + string.length() &quot; + (cursorX + string.length())</span>
+                    + &quot; must be less than &quot; + widthInCharacters + &quot;.&quot;);
+
+<span class="nc" id="L748">        return write(string, cursorX, cursorY, foreground, defaultBackgroundColor);</span>
+    }
+
+    /**
+     * Write a string to the cursor's position with the specified foreground and
+     * background colors. This updates the cursor's position but not the default
+     * foreground or background colors.
+     * 
+     * @param string     the string to write
+     * @param foreground the foreground color or null to use the default
+     * @param background the background color or null to use the default
+     * @return this for convenient chaining of method calls
+     */
+    public AsciiPanel write(String string, Color foreground, Color background) {
+<span class="nc bnc" id="L762" title="All 2 branches missed.">        if (string == null)</span>
+<span class="nc" id="L763">            throw new NullPointerException(&quot;string must not be null&quot;);</span>
+
+<span class="nc bnc" id="L765" title="All 2 branches missed.">        if (cursorX + string.length() &gt; widthInCharacters)</span>
+<span class="nc" id="L766">            throw new IllegalArgumentException(&quot;cursorX + string.length() &quot; + (cursorX + string.length())</span>
+                    + &quot; must be less than &quot; + widthInCharacters + &quot;.&quot;);
+
+<span class="nc" id="L769">        return write(string, cursorX, cursorY, foreground, background);</span>
+    }
+
+    /**
+     * Write a string to the specified position. This updates the cursor's position.
+     * 
+     * @param string the string to write
+     * @param x      the distance from the left to begin writing from
+     * @param y      the distance from the top to begin writing from
+     * @return this for convenient chaining of method calls
+     */
+    public AsciiPanel write(String string, int x, int y) {
+<span class="nc bnc" id="L781" title="All 2 branches missed.">        if (string == null)</span>
+<span class="nc" id="L782">            throw new NullPointerException(&quot;string must not be null&quot;);</span>
+
+<span class="nc bnc" id="L784" title="All 2 branches missed.">        if (x + string.length() &gt; widthInCharacters)</span>
+<span class="nc" id="L785">            throw new IllegalArgumentException(</span>
+<span class="nc" id="L786">                    &quot;x + string.length() &quot; + (x + string.length()) + &quot; must be less than &quot; + widthInCharacters + &quot;.&quot;);</span>
+
+<span class="nc bnc" id="L788" title="All 4 branches missed.">        if (x &lt; 0 || x &gt;= widthInCharacters)</span>
+<span class="nc" id="L789">            throw new IllegalArgumentException(&quot;x &quot; + x + &quot; must be within range [0,&quot; + widthInCharacters + &quot;)&quot;);</span>
+
+<span class="nc bnc" id="L791" title="All 4 branches missed.">        if (y &lt; 0 || y &gt;= heightInCharacters)</span>
+<span class="nc" id="L792">            throw new IllegalArgumentException(&quot;y &quot; + y + &quot; must be within range [0,&quot; + heightInCharacters + &quot;)&quot;);</span>
+
+<span class="nc" id="L794">        return write(string, x, y, defaultForegroundColor, defaultBackgroundColor);</span>
+    }
+
+    /**
+     * Write a string to the specified position with the specified foreground color.
+     * This updates the cursor's position but not the default foreground color.
+     * 
+     * @param string     the string to write
+     * @param x          the distance from the left to begin writing from
+     * @param y          the distance from the top to begin writing from
+     * @param foreground the foreground color or null to use the default
+     * @return this for convenient chaining of method calls
+     */
+    public AsciiPanel write(String string, int x, int y, Color foreground) {
+<span class="nc bnc" id="L808" title="All 2 branches missed.">        if (string == null)</span>
+<span class="nc" id="L809">            throw new NullPointerException(&quot;string must not be null&quot;);</span>
+
+<span class="nc bnc" id="L811" title="All 2 branches missed.">        if (x + string.length() &gt; widthInCharacters)</span>
+<span class="nc" id="L812">            throw new IllegalArgumentException(</span>
+<span class="nc" id="L813">                    &quot;x + string.length() &quot; + (x + string.length()) + &quot; must be less than &quot; + widthInCharacters + &quot;.&quot;);</span>
+
+<span class="nc bnc" id="L815" title="All 4 branches missed.">        if (x &lt; 0 || x &gt;= widthInCharacters)</span>
+<span class="nc" id="L816">            throw new IllegalArgumentException(&quot;x &quot; + x + &quot; must be within range [0,&quot; + widthInCharacters + &quot;)&quot;);</span>
+
+<span class="nc bnc" id="L818" title="All 4 branches missed.">        if (y &lt; 0 || y &gt;= heightInCharacters)</span>
+<span class="nc" id="L819">            throw new IllegalArgumentException(&quot;y &quot; + y + &quot; must be within range [0,&quot; + heightInCharacters + &quot;)&quot;);</span>
+
+<span class="nc" id="L821">        return write(string, x, y, foreground, defaultBackgroundColor);</span>
+    }
+
+    /**
+     * Write a string to the specified position with the specified foreground and
+     * background colors. This updates the cursor's position but not the default
+     * foreground or background colors.
+     * 
+     * @param string     the string to write
+     * @param x          the distance from the left to begin writing from
+     * @param y          the distance from the top to begin writing from
+     * @param foreground the foreground color or null to use the default
+     * @param background the background color or null to use the default
+     * @return this for convenient chaining of method calls
+     */
+    public AsciiPanel write(String string, int x, int y, Color foreground, Color background) {
+<span class="nc bnc" id="L837" title="All 2 branches missed.">        if (string == null)</span>
+<span class="nc" id="L838">            throw new NullPointerException(&quot;string must not be null.&quot;);</span>
+
+<span class="nc bnc" id="L840" title="All 2 branches missed.">        if (x + string.length() &gt; widthInCharacters)</span>
+<span class="nc" id="L841">            throw new IllegalArgumentException(</span>
+<span class="nc" id="L842">                    &quot;x + string.length() &quot; + (x + string.length()) + &quot; must be less than &quot; + widthInCharacters + &quot;.&quot;);</span>
+
+<span class="nc bnc" id="L844" title="All 4 branches missed.">        if (x &lt; 0 || x &gt;= widthInCharacters)</span>
+<span class="nc" id="L845">            throw new IllegalArgumentException(&quot;x &quot; + x + &quot; must be within range [0,&quot; + widthInCharacters + &quot;).&quot;);</span>
+
+<span class="nc bnc" id="L847" title="All 4 branches missed.">        if (y &lt; 0 || y &gt;= heightInCharacters)</span>
+<span class="nc" id="L848">            throw new IllegalArgumentException(&quot;y &quot; + y + &quot; must be within range [0,&quot; + heightInCharacters + &quot;).&quot;);</span>
+
+<span class="nc bnc" id="L850" title="All 2 branches missed.">        if (foreground == null)</span>
+<span class="nc" id="L851">            foreground = defaultForegroundColor;</span>
+
+<span class="nc bnc" id="L853" title="All 2 branches missed.">        if (background == null)</span>
+<span class="nc" id="L854">            background = defaultBackgroundColor;</span>
+
+<span class="nc bnc" id="L856" title="All 2 branches missed.">        for (int i = 0; i &lt; string.length(); i++) {</span>
+<span class="nc" id="L857">            write(string.charAt(i), x + i, y, foreground, background);</span>
+        }
+<span class="nc" id="L859">        return this;</span>
+    }
+
+    /**
+     * Write a string to the center of the panel at the specified y position. This
+     * updates the cursor's position.
+     * 
+     * @param string the string to write
+     * @param y      the distance from the top to begin writing from
+     * @return this for convenient chaining of method calls
+     */
+    public AsciiPanel writeCenter(String string, int y) {
+<span class="nc bnc" id="L871" title="All 2 branches missed.">        if (string == null)</span>
+<span class="nc" id="L872">            throw new NullPointerException(&quot;string must not be null&quot;);</span>
+
+<span class="nc bnc" id="L874" title="All 2 branches missed.">        if (string.length() &gt; widthInCharacters)</span>
+<span class="nc" id="L875">            throw new IllegalArgumentException(</span>
+<span class="nc" id="L876">                    &quot;string.length() &quot; + string.length() + &quot; must be less than &quot; + widthInCharacters + &quot;.&quot;);</span>
+
+<span class="nc" id="L878">        int x = (widthInCharacters - string.length()) / 2;</span>
+
+<span class="nc bnc" id="L880" title="All 4 branches missed.">        if (y &lt; 0 || y &gt;= heightInCharacters)</span>
+<span class="nc" id="L881">            throw new IllegalArgumentException(&quot;y &quot; + y + &quot; must be within range [0,&quot; + heightInCharacters + &quot;)&quot;);</span>
+
+<span class="nc" id="L883">        return write(string, x, y, defaultForegroundColor, defaultBackgroundColor);</span>
+    }
+
+    /**
+     * Write a string to the center of the panel at the specified y position with
+     * the specified foreground color. This updates the cursor's position but not
+     * the default foreground color.
+     * 
+     * @param string     the string to write
+     * @param y          the distance from the top to begin writing from
+     * @param foreground the foreground color or null to use the default
+     * @return this for convenient chaining of method calls
+     */
+    public AsciiPanel writeCenter(String string, int y, Color foreground) {
+<span class="nc bnc" id="L897" title="All 2 branches missed.">        if (string == null)</span>
+<span class="nc" id="L898">            throw new NullPointerException(&quot;string must not be null&quot;);</span>
+
+<span class="nc bnc" id="L900" title="All 2 branches missed.">        if (string.length() &gt; widthInCharacters)</span>
+<span class="nc" id="L901">            throw new IllegalArgumentException(</span>
+<span class="nc" id="L902">                    &quot;string.length() &quot; + string.length() + &quot; must be less than &quot; + widthInCharacters + &quot;.&quot;);</span>
+
+<span class="nc" id="L904">        int x = (widthInCharacters - string.length()) / 2;</span>
+
+<span class="nc bnc" id="L906" title="All 4 branches missed.">        if (y &lt; 0 || y &gt;= heightInCharacters)</span>
+<span class="nc" id="L907">            throw new IllegalArgumentException(&quot;y &quot; + y + &quot; must be within range [0,&quot; + heightInCharacters + &quot;)&quot;);</span>
+
+<span class="nc" id="L909">        return write(string, x, y, foreground, defaultBackgroundColor);</span>
+    }
+
+    /**
+     * Write a string to the center of the panel at the specified y position with
+     * the specified foreground and background colors. This updates the cursor's
+     * position but not the default foreground or background colors.
+     * 
+     * @param string     the string to write
+     * @param y          the distance from the top to begin writing from
+     * @param foreground the foreground color or null to use the default
+     * @param background the background color or null to use the default
+     * @return this for convenient chaining of method calls
+     */
+    public AsciiPanel writeCenter(String string, int y, Color foreground, Color background) {
+<span class="nc bnc" id="L924" title="All 2 branches missed.">        if (string == null)</span>
+<span class="nc" id="L925">            throw new NullPointerException(&quot;string must not be null.&quot;);</span>
+
+<span class="nc bnc" id="L927" title="All 2 branches missed.">        if (string.length() &gt; widthInCharacters)</span>
+<span class="nc" id="L928">            throw new IllegalArgumentException(</span>
+<span class="nc" id="L929">                    &quot;string.length() &quot; + string.length() + &quot; must be less than &quot; + widthInCharacters + &quot;.&quot;);</span>
+
+<span class="nc" id="L931">        int x = (widthInCharacters - string.length()) / 2;</span>
+
+<span class="nc bnc" id="L933" title="All 4 branches missed.">        if (y &lt; 0 || y &gt;= heightInCharacters)</span>
+<span class="nc" id="L934">            throw new IllegalArgumentException(&quot;y &quot; + y + &quot; must be within range [0,&quot; + heightInCharacters + &quot;).&quot;);</span>
+
+<span class="nc bnc" id="L936" title="All 2 branches missed.">        if (foreground == null)</span>
+<span class="nc" id="L937">            foreground = defaultForegroundColor;</span>
+
+<span class="nc bnc" id="L939" title="All 2 branches missed.">        if (background == null)</span>
+<span class="nc" id="L940">            background = defaultBackgroundColor;</span>
+
+<span class="nc bnc" id="L942" title="All 2 branches missed.">        for (int i = 0; i &lt; string.length(); i++) {</span>
+<span class="nc" id="L943">            write(string.charAt(i), x + i, y, foreground, background);</span>
+        }
+<span class="nc" id="L945">        return this;</span>
+    }
+
+    public void withEachTile(TileTransformer transformer) {
+<span class="nc" id="L949">        withEachTile(0, 0, widthInCharacters, heightInCharacters, transformer);</span>
+<span class="nc" id="L950">    }</span>
+
+    public void withEachTile(int left, int top, int width, int height, TileTransformer transformer) {
+<span class="nc" id="L953">        AsciiCharacterData data = new AsciiCharacterData();</span>
+
+<span class="nc bnc" id="L955" title="All 2 branches missed.">        for (int x0 = 0; x0 &lt; width; x0++)</span>
+<span class="nc bnc" id="L956" title="All 2 branches missed.">            for (int y0 = 0; y0 &lt; height; y0++) {</span>
+<span class="nc" id="L957">                int x = left + x0;</span>
+<span class="nc" id="L958">                int y = top + y0;</span>
+
+<span class="nc bnc" id="L960" title="All 8 branches missed.">                if (x &lt; 0 || y &lt; 0 || x &gt;= widthInCharacters || y &gt;= heightInCharacters)</span>
+<span class="nc" id="L961">                    continue;</span>
+
+<span class="nc" id="L963">                data.character = chars[x][y];</span>
+<span class="nc" id="L964">                data.foregroundColor = foregroundColors[x][y];</span>
+<span class="nc" id="L965">                data.backgroundColor = backgroundColors[x][y];</span>
+
+<span class="nc" id="L967">                transformer.transformTile(x, y, data);</span>
+
+<span class="nc" id="L969">                chars[x][y] = data.character;</span>
+<span class="nc" id="L970">                foregroundColors[x][y] = data.foregroundColor;</span>
+<span class="nc" id="L971">                backgroundColors[x][y] = data.backgroundColor;</span>
+            }
+<span class="nc" id="L973">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

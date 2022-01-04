@@ -1,0 +1,27 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+roguelike,com.nju.roguelike.world,FungusAI,4,0,0,0,2,0,1,0,1,0
+roguelike,com.nju.roguelike.world,CreatureAI,39,10,2,0,8,4,6,1,5,1
+roguelike,com.nju.roguelike.world,PlayerAI,115,0,17,0,38,0,16,0,4,0
+roguelike,com.nju.roguelike.world,World,312,132,57,12,67,31,47,9,13,7
+roguelike,com.nju.roguelike.world,Node,9,0,0,0,4,0,1,0,1,0
+roguelike,com.nju.roguelike.world,MedicineAI,9,0,0,0,4,0,2,0,2,0
+roguelike,com.nju.roguelike.world,WorldBuilder,16,166,5,26,3,33,4,17,0,5
+roguelike,com.nju.roguelike.world,Creature.new TimerTask() {...},15,0,0,0,3,0,2,0,2,0
+roguelike,com.nju.roguelike.world,MonsterAI,403,0,29,0,65,0,23,0,8,0
+roguelike,com.nju.roguelike.world,AmplifierAI,9,0,0,0,4,0,2,0,2,0
+roguelike,com.nju.roguelike.world,CreatureFactory,130,0,0,0,23,0,6,0,6,0
+roguelike,com.nju.roguelike.world,Creature,369,64,34,0,79,27,45,9,28,9
+roguelike,com.nju.roguelike.world,CreatureType,0,54,0,0,0,6,0,1,0,1
+roguelike,com.nju.roguelike.world,Tile,14,60,4,2,3,9,6,3,3,3
+roguelike,asciiPanel,AsciiCharacterData,3,0,0,0,1,0,1,0,1,0
+roguelike,asciiPanel,AsciiFont,85,0,0,0,17,0,5,0,5,0
+roguelike,asciiPanel,AsciiPanel,2352,113,238,0,304,16,163,1,44,1
+roguelike,com.nju.roguelike.screen,LoseScreen,17,0,0,0,4,0,2,0,2,0
+roguelike,com.nju.roguelike.screen,PlayScreen.new TimerTask() {...},48,0,4,0,8,0,4,0,2,0
+roguelike,com.nju.roguelike.screen,PlayScreen.new TimerTask() {...},48,0,4,0,8,0,4,0,2,0
+roguelike,com.nju.roguelike.screen,WinScreen,29,0,0,0,8,0,2,0,2,0
+roguelike,com.nju.roguelike.screen,PlayScreen,726,0,74,0,142,0,48,0,11,0
+roguelike,com.nju.roguelike.screen,RestartScreen,28,0,2,0,9,0,4,0,3,0
+roguelike,com.nju.roguelike.screen,StartScreen,86,0,2,0,29,0,5,0,4,0
+roguelike,com.nju.roguelike,ApplicationMain.new TimerTask() {...},10,0,0,0,3,0,2,0,2,0
+roguelike,com.nju.roguelike,ApplicationMain,79,0,0,0,22,0,6,0,6,0
