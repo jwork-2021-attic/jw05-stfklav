@@ -23,6 +23,9 @@ public class PlayScreen implements Screen, Serializable {
 
     private World world;
     private transient Creature player; // 玩家
+    private transient Creature player_1; // 1号玩家
+    private transient Creature player_2; // 2号反“玩家”
+    private transient Creature player_3; // 3号反“玩家”
     private ArrayList<String> messages;
     private ArrayList<String> oldMessages;
 
@@ -41,7 +44,7 @@ public class PlayScreen implements Screen, Serializable {
         AMPLIFIER_NUMBER = amplifier_num;
         this.level = level;
 
-        gameStatus = true;
+        gameStatus = false;
 
         createWorld();
         this.messages = new ArrayList<String>();
@@ -54,24 +57,36 @@ public class PlayScreen implements Screen, Serializable {
     private void createCreatures(CreatureFactory creatureFactory) {
 
         // 开创线程池创造怪物
-        ExecutorService exec = Executors.newFixedThreadPool(MONSTER_NUMBER + 1);
-        this.player = creatureFactory.newPlayer(this.messages);
-        player.setStatus(gameStatus);
-        exec.execute(player);
+        ExecutorService exec = Executors.newFixedThreadPool(MONSTER_NUMBER + 3);
+        this.player_1 = creatureFactory.newPlayer(this.messages);
+        this.player_2 = creatureFactory.newReversePlayer(this.messages);
+        this.player_3 = creatureFactory.newReversePlayer(this.messages);
+
+        player_1.setStatus(gameStatus);
+        player_2.setStatus(gameStatus);
+        player_3.setStatus(gameStatus);
+
+        exec.execute(player_1);
+        exec.execute(player_2);
+        exec.execute(player_3);
+
+        // 默认拿第一个玩家
+        player = player_1;
+
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
                 // 限制屏幕上剩余怪物数量
                 List<Creature> monsters = world.monsterRemain();
                 if (monsters.size() < MONSTER_NUMBER && gameStatus) {
-                    Creature m = creatureFactory.newMonster(player);
+                    Creature m = creatureFactory.newMonster(player_1); // 哪个客户端都只能冲player1去
                     m.setStatus(gameStatus);
                     monsters.add(m); // 添加新的怪物
                     exec.execute(m);
                 }
             }
 
-        }, 5000, 5000); // 一开始等五秒，之后每五秒检查一次
+        }, 0, 5000); // 一开始就不等待，之后每五秒检查一次
         // exec.shutdown();
 
         for (int i = 0; i < FUNGUS_NUMBER; i++) {
@@ -84,6 +99,23 @@ public class PlayScreen implements Screen, Serializable {
 
         for (int i = 0; i < AMPLIFIER_NUMBER; i++) {
             creatureFactory.newAmplifier();
+        }
+    }
+
+    public void setPlayer(int num) {
+        switch (num) {
+            case 1:
+                this.player = player_1;
+                break;
+            case 2:
+                this.player = player_2;
+                break;
+            case 3:
+                this.player = player_3;
+                break;
+            default:
+                this.player = player_1;
+                break;
         }
     }
 

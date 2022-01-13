@@ -2,14 +2,12 @@ package com.nju.roguelike;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.IOException;
 
 import javax.swing.JFrame;
 
 import asciiPanel.AsciiFont;
 import asciiPanel.AsciiPanel;
-import com.nju.roguelike.screen.Screen;
-import com.nju.roguelike.screen.StartScreen;
+import com.nju.roguelike.screen.*;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -33,7 +31,8 @@ public class ApplicationMain extends JFrame implements KeyListener {
         add(terminal);
         pack();
         screen = new StartScreen().reload();
-        
+        // screen = new StartScreen();
+
         addKeyListener(this);
 
         timer = new Timer();
@@ -43,6 +42,30 @@ public class ApplicationMain extends JFrame implements KeyListener {
                 repaint();
             }
         }, 0, mseconds);
+
+        repaint();
+    }
+
+    // 用于客户端接收，不刷新
+    public ApplicationMain(Screen screen) {
+        super();
+        terminal = new AsciiPanel(Screen.WIDTH, Screen.HEIGHT, AsciiFont.TALRYTH_15_15);
+        add(terminal);
+        pack();
+        this.screen = screen;
+
+        addKeyListener(this);
+         
+        repaint();
+
+    }
+
+    public Screen getScreen() {
+        return this.screen;
+    }
+
+    public void setScreen(Screen screen) {
+        this.screen = screen;
 
         repaint();
     }

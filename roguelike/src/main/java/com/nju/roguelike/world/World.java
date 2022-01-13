@@ -16,7 +16,7 @@ public class World implements Serializable {
     private int height;
     public static final int WIDTH = 30;
     public static final int HEIGHT = 30;
-    
+
     public static final int TILE_TYPES = 2;
     private ArrayList<Creature> creatures; // 序列化函数中再处理
 
@@ -68,39 +68,41 @@ public class World implements Serializable {
         int x = 0;
         int y = 0;
 
+
         if (creature.type() == CreatureType.MONSTER) {
             // 怪物从边上进来
-            Random rand = new Random();
-            switch (rand.nextInt(4)) {
-                case 0:
-                    do {
-                        x = (int) (Math.random() * this.width);
-                        y = 0;
-                    } while (!tile(x, y).isGround() || this.creature(x, y) != null);
-                    break;
-                case 1:
-                    do {
-                        x = (int) (Math.random() * this.width);
-                        y = this.height - 1;
-                    } while (!tile(x, y).isGround() || this.creature(x, y) != null);
-                    break;
-                case 3:
-                    do {
-                        x = 0;
-                        y = (int) (Math.random() * this.height);
-                    } while (!tile(x, y).isGround() || this.creature(x, y) != null);
-                    break;
-                case 4:
-                    do {
-                        x = this.width - 1;
-                        y = (int) (Math.random() * this.height);
-                    } while (!tile(x, y).isGround() || this.creature(x, y) != null);
-                    break;
-            }
-        } else {
+            x = 0;
+            y = 0;
             do {
-                x = (int) (Math.random() * this.width);
-                y = (int) (Math.random() * this.height);
+                x = (x + 1) % this.width;
+            } while (!tile(x, y).isGround() || this.creature(x, y) != null);
+        } else if (creature.type() == CreatureType.PLAYER) {
+            x = this.width / 2;
+            y = this.height / 2;
+            do {
+                x = (x + 9) % this.width;
+                y = (y + 13) % this.height;
+            } while (!tile(x, y).isGround() || this.creature(x, y) != null);
+        }else if(creature.type() == CreatureType.FUNGUS){
+            x = this.width / 3;
+            y = this.height / 4;
+            do {
+                x = (x + 2) % this.width;
+                y = (y + 7) % this.height;
+            } while (!tile(x, y).isGround() || this.creature(x, y) != null);
+        }else if(creature.type() == CreatureType.MEDICINE){
+            x = this.width - 1;
+            y = this.height - 1;
+            do {
+                x = (x + 17) % this.width;
+                y = (y + 3) % this.height;
+            } while (!tile(x, y).isGround() || this.creature(x, y) != null);
+        }else{
+            x = this.width / 2;
+            y = this.height / 2;
+            do {
+                x = (x + 33) % this.width;
+                y = (y + 21) % this.height;
             } while (!tile(x, y).isGround() || this.creature(x, y) != null);
         }
 
@@ -189,10 +191,10 @@ public class World implements Serializable {
         oos.defaultWriteObject();
         // oos.writeObject(creatures);
     }
-   
+
     private synchronized void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
         ois.defaultReadObject();
-        for (Creature c : this.creatures){
+        for (Creature c : this.creatures) {
             c.setWorld(this);
             new CreatureAI(c);
         }

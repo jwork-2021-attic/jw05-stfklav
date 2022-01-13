@@ -20,6 +20,13 @@ public class CreatureFactory {
         return player;
     }
 
+    public Creature newReversePlayer(List<String> messages) {
+        Creature player = new Creature(this.world, CreatureType.PLAYER, (char)2, AsciiPanel.red, 100, 20, 0, 5);
+        world.addAtEmptyLocation(player);
+        new PlayerAI(player, messages);
+        return player;
+    }
+
     public Creature newFungus() {
         Creature fungus = new Creature(this.world, CreatureType.FUNGUS, (char)3, AsciiPanel.brightRed, 10, 0, 0, 0);
         world.addAtEmptyLocation(fungus);

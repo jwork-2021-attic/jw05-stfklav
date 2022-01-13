@@ -65,27 +65,12 @@ public class MonsterAI extends CreatureAI {
         int distanceX = Math.abs(finish.x - start.x);
         int distanceY = Math.abs(finish.y - start.y);
 
-        // 先横着走还是先竖着走随机
-        Random rand = new Random();
-        switch (rand.nextInt(2)) {
-            case 0: {
-                for (int i = 1; i <= distanceX; ++i) {
-                    stack.push(new Node(start.x + mx * i, start.y));
-                }
-                for (int i = 1; i <= distanceY; ++i) {
-                    stack.push(new Node(finish.x, start.y + my * i));
-                }
-                break;
-            }
-            case 1: {
-                for (int i = 1; i <= distanceY; ++i) {
-                    stack.push(new Node(start.x, start.y + my * i));
-                }
-                for (int i = 1; i <= distanceX; ++i) {
-                    stack.push(new Node(start.x + mx * i, finish.y));
-                }
-                break;
-            }
+         // 先横着走
+        for (int i = 1; i <= distanceX; ++i) {
+            stack.push(new Node(start.x + mx * i, start.y));
+        }
+        for (int i = 1; i <= distanceY; ++i) {
+            stack.push(new Node(finish.x, start.y + my * i));
         }
 
         /*

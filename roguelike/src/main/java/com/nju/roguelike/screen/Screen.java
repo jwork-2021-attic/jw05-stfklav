@@ -5,7 +5,7 @@ import com.nju.roguelike.world.*;
 import asciiPanel.AsciiPanel;
 import java.awt.event.KeyEvent;
 
-public interface Screen {
+public interface Screen{
     public static final int WIDTH = World.WIDTH + 10;
     public static final int HEIGHT = World.HEIGHT + 10;
 
