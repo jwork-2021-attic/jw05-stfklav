@@ -159,8 +159,8 @@ public class SelectorServer extends JFrame implements KeyListener {
             // 遍历每一个Key
             while (iterator.hasNext()) {
                 SelectionKey selectionKey = iterator.next();
-                iterator.remove();
-                if (selectionKey.isWritable()) { // 写入通知大家开始的信息
+                // iterator.remove();
+                if (selectionKey.isWritable()) { // 写入操作信息
                     try {
                         writeDataToSocket(selectionKey, data);
 
@@ -214,6 +214,10 @@ public class SelectorServer extends JFrame implements KeyListener {
 
     }
 
+    static String operationMessage = "";
+    static boolean read = true;
+    static boolean write = false;
+
     public static void main(String[] args) throws IOException {
         SelectorServer app = new SelectorServer(REFRESH_LAG);// 100ms刷新一次，10Hz
         app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -222,12 +226,12 @@ public class SelectorServer extends JFrame implements KeyListener {
         // 没被锁上的时候遍历
         while (!closed) {
             if (!lock) {
+
                 int n = selector.select();
                 // 没有就绪的通道则什么也不做
                 if (n == 0) {
                     continue;
                 }
-
                 /*
                  * if (selector.selectedKeys().size() > 0)
                  * System.out.println(selector.selectedKeys().size());
@@ -251,7 +255,7 @@ public class SelectorServer extends JFrame implements KeyListener {
                         sc.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
                     }
                     // 读数据
-                    if (selectionKey.isReadable()) {
+                    if (read && selectionKey.isReadable()) {
                         // 从channel中读取数据
                         SocketChannel sc = (SocketChannel) selectionKey.channel();
 
@@ -272,18 +276,39 @@ public class SelectorServer extends JFrame implements KeyListener {
                         // 收到消息
                         String s = (new String(bytes)).trim();
                         String[] couple = s.split(" ");
-                        System.out.println("服务端收到：" + s);
 
+                        operationMessage = s;
+                        System.out.println("服务端收到：" + operationMessage);
                         // 写给所有客户端
-                        writeToAll(s);
+                        // writeToAll(s);
 
                         // 在自己这里操作
                         operation(Integer.parseInt(couple[0]), Integer.parseInt(couple[1]));
 
                     }
+                    if (write && selectionKey.isWritable()) {
+                        try {
+                            writeDataToSocket(selectionKey, operationMessage);
+
+                        } catch (IOException e) {
+                            selectionKey.cancel();
+                            continue;
+                        }
+
+                    }
 
                 } // . end of while
 
+                if (read) {
+                    if (operationMessage.length() > 0) {
+                        read = false;
+                        write = true;
+                    }
+                }else{
+                    operationMessage = "";
+                    read = true;
+                    write = false;
+                }
             }
 
         }
