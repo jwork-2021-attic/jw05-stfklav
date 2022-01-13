@@ -27,7 +27,12 @@ public class PlayScreen implements Screen, Serializable {
     private transient Creature player_2; // 2号反“玩家”
     private transient Creature player_3; // 3号反“玩家”
     private ArrayList<String> messages;
+    private ArrayList<String> messages_1;
+    private ArrayList<String> messages_2;
+    private ArrayList<String> messages_3;
     private ArrayList<String> oldMessages;
+
+    public int player_number;
 
     public boolean gameStatus; // 游戏是不是被暂停
 
@@ -49,6 +54,10 @@ public class PlayScreen implements Screen, Serializable {
         createWorld();
         this.messages = new ArrayList<String>();
         this.oldMessages = new ArrayList<String>();
+        this.messages_1 = new ArrayList<String>();
+        this.messages_2 = new ArrayList<String>();
+        this.messages_3 = new ArrayList<String>();
+
 
         CreatureFactory creatureFactory = new CreatureFactory(this.world);
         createCreatures(creatureFactory);
@@ -58,9 +67,9 @@ public class PlayScreen implements Screen, Serializable {
 
         // 开创线程池创造怪物
         ExecutorService exec = Executors.newFixedThreadPool(MONSTER_NUMBER + 3);
-        this.player_1 = creatureFactory.newPlayer(this.messages);
-        this.player_2 = creatureFactory.newReversePlayer(this.messages);
-        this.player_3 = creatureFactory.newReversePlayer(this.messages);
+        this.player_1 = creatureFactory.newPlayer(this.messages_1);
+        this.player_2 = creatureFactory.newReversePlayer(this.messages_2);
+        this.player_3 = creatureFactory.newReversePlayer(this.messages_3);
 
         player_1.setStatus(gameStatus);
         player_2.setStatus(gameStatus);
@@ -72,30 +81,34 @@ public class PlayScreen implements Screen, Serializable {
 
         // 默认拿第一个玩家
         player = player_1;
+        player_number = 1;
+        messages = messages_1;
 
         // 怪物写死
-        for(int i = 0; i < MONSTER_NUMBER; i++){
+        for (int i = 0; i < MONSTER_NUMBER; i++) {
             Creature m = creatureFactory.newMonster(player_1);
             m.setStatus(gameStatus);
             exec.execute(m);
         }
 
-
-        /*new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                // 限制屏幕上剩余怪物数量
-                List<Creature> monsters = world.monsterRemain();
-                if (monsters.size() < MONSTER_NUMBER && gameStatus) {
-                    Creature m = creatureFactory.newMonster(player_1); // 哪个客户端都只能冲player1去
-                    m.setStatus(gameStatus);
-                    monsters.add(m); // 添加新的怪物
-                    exec.execute(m);
-                }
-            }
-
-        }, 0, 5000); // 一开始就不等待，之后每五秒检查一次
-        // exec.shutdown();*/
+        /*
+         * new Timer().schedule(new TimerTask() {
+         * 
+         * @Override
+         * public void run() {
+         * // 限制屏幕上剩余怪物数量
+         * List<Creature> monsters = world.monsterRemain();
+         * if (monsters.size() < MONSTER_NUMBER && gameStatus) {
+         * Creature m = creatureFactory.newMonster(player_1); // 哪个客户端都只能冲player1去
+         * m.setStatus(gameStatus);
+         * monsters.add(m); // 添加新的怪物
+         * exec.execute(m);
+         * }
+         * }
+         * 
+         * }, 0, 5000); // 一开始就不等待，之后每五秒检查一次
+         * // exec.shutdown();
+         */
 
         for (int i = 0; i < FUNGUS_NUMBER; i++) {
             creatureFactory.newFungus();
@@ -127,15 +140,50 @@ public class PlayScreen implements Screen, Serializable {
         }
     }
 
+    public void setPlayer_number(int num) {
+        player_number = num;
+        switch (num) {
+            case 1:
+                this.messages = messages_1;
+                break;
+            case 2:
+                this.messages = messages_2;
+                break;
+            case 3:
+                this.messages = messages_3;
+                break;
+            default:
+                this.messages = messages_1;
+                break;
+        }
+
+    }
+
     private void createWorld() {
         world = new WorldBuilder(World.WIDTH, World.HEIGHT).makeCaves().build();
     }
 
     private void displayTiles(AsciiPanel terminal) {
+        Creature myPlayer = player;
+        switch (player_number) {
+            case 1:
+                myPlayer = player_1;
+                break;
+            case 2:
+                myPlayer = player_2;
+                break;
+            case 3:
+                myPlayer = player_3;
+                break;
+            default:
+                myPlayer = player_1;
+                break;
+        }
+
         // Show terrain
         for (int x = 0; x < World.WIDTH; x++) {
             for (int y = 0; y < World.HEIGHT; y++) {
-                if (player.canSee(x, y)) {
+                if (myPlayer.canSee(x, y)) {
                     terminal.write(world.glyph(x, y), x, y, world.color(x, y));
                 } else {
                     terminal.write(world.glyph(x, y), x, y, Color.DARK_GRAY);
@@ -149,7 +197,7 @@ public class PlayScreen implements Screen, Serializable {
                 // 照亮才能看见
                 if (creature.x() >= 0 && creature.x() < World.WIDTH && creature.y() >= 0
                         && creature.y() < World.HEIGHT) {
-                    if (player.canSee(creature.x(), creature.y())) {
+                    if (myPlayer.canSee(creature.x(), creature.y())) {
                         terminal.write(creature.glyph(), creature.x(), creature.y(), creature.color());
                     }
                 }
@@ -251,15 +299,31 @@ public class PlayScreen implements Screen, Serializable {
 
     @Override
     public Screen displayOutput(AsciiPanel terminal) {
+        Creature myPlayer = player;
+        switch (player_number) {
+            case 1:
+                myPlayer = player_1;
+                break;
+            case 2:
+                myPlayer = player_2;
+                break;
+            case 3:
+                myPlayer = player_3;
+                break;
+            default:
+                myPlayer = player_1;
+                break;
+        }
+
         // Terrain and creatures
         displayTiles(terminal);
         // Player
-        terminal.write(player.glyph(), player.x(), player.y(), player.color());
+        terminal.write(myPlayer.glyph(), myPlayer.x(), myPlayer.y(), myPlayer.color());
         // Stats
         String levelstats = String.format("Level:%3d", this.level);
         terminal.write(levelstats, 1, World.HEIGHT);
 
-        String hpstats = String.format("%3d/%3d hp", player.hp(), player.maxHP());
+        String hpstats = String.format("%3d/%3d hp", myPlayer.hp(), myPlayer.maxHP());
         terminal.write(hpstats, 1, World.HEIGHT + 2);
 
         String stats = String.format("Get%3d/%3d Hearts", FUNGUS_NUMBER - world.fungusRemain().size(), FUNGUS_NUMBER);
@@ -340,10 +404,10 @@ public class PlayScreen implements Screen, Serializable {
                     player.setStatus(gameStatus);
                 }
                     break;
-                default:{
+                default: {
                     player.setStatus(gameStatus);
                     player.setKeyEvent(key.getKeyCode());
-                   // System.out.println("Tht keycode: "+key.getKeyCode());
+                    // System.out.println("Tht keycode: "+key.getKeyCode());
                 }
                     break;
             }

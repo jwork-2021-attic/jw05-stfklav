@@ -142,38 +142,6 @@ public class SelectorServer extends JFrame implements KeyListener {
         // TODO Auto-generated method stub
 
     }
-
-    // 把消息发给所有客户端
-    private static void writeToAll(String data) {
-        lock = true;
-        int n = 0;
-        try {
-            n = selector.select();
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
-        // 没有就绪的通道则什么也不做
-        if (n != 0) {
-            // System.out.println(selector.selectedKeys().size());
-            Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
-            // 遍历每一个Key
-            while (iterator.hasNext()) {
-                SelectionKey selectionKey = iterator.next();
-                // iterator.remove();
-                if (selectionKey.isWritable()) { // 写入操作信息
-                    try {
-                        writeDataToSocket(selectionKey, data);
-
-                    } catch (IOException e) {
-                        selectionKey.cancel();
-                        continue;
-                    }
-                }
-            }
-        }
-        lock = false;
-    }
-
     /**
      * 向通道中写数据
      * 

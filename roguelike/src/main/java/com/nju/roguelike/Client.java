@@ -40,6 +40,7 @@ public class Client extends JFrame implements KeyListener {
         screen = new PlayScreen(3, 3, 2, 2, 0);
         PlayScreen playscreen = (PlayScreen) screen;
         playscreen.setPlayer(player_number);
+        playscreen.setPlayer_number(player_number);
 
         addKeyListener(this);
 
