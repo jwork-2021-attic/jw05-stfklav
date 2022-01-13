@@ -88,13 +88,15 @@ public class SelectorServer extends JFrame implements KeyListener {
     @Override
     public void keyPressed(KeyEvent key) {
         screen = screen.respondToUserInput(key);
-        // TODO Auto-generated method stub
+
         if (key.getKeyCode() == KeyEvent.VK_SPACE) {
             lock = true;
-            start = true; // 开始游戏，不能停
+            if (!start)
+                start = true; // 开始游戏
+            else
+                start = false; // 暂停游戏
 
             // 获取SelectionKeys上已经就绪的集合
-
             int n = 0;
             try {
                 n = selector.select();
@@ -116,6 +118,8 @@ public class SelectorServer extends JFrame implements KeyListener {
                             SocketChannel sc = (SocketChannel) selectionKey.channel();
                             byteBuffer.clear();
                             String str = "start";
+                            if (!start)
+                                str = "stop";
                             byteBuffer = ByteBuffer.allocate(str.length());
                             byteBuffer.put(str.getBytes());
                             byteBuffer.flip(); // 读缓冲区的数据之前一定要先反转(flip)
@@ -139,27 +143,61 @@ public class SelectorServer extends JFrame implements KeyListener {
 
     }
 
+    // 把消息发给所有客户端
+    private static void writeToAll(String data) {
+        lock = true;
+        int n = 0;
+        try {
+            n = selector.select();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        // 没有就绪的通道则什么也不做
+        if (n != 0) {
+            // System.out.println(selector.selectedKeys().size());
+            Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
+            // 遍历每一个Key
+            while (iterator.hasNext()) {
+                SelectionKey selectionKey = iterator.next();
+                iterator.remove();
+                if (selectionKey.isWritable()) { // 写入通知大家开始的信息
+                    try {
+                        writeDataToSocket(selectionKey, data);
+
+                    } catch (IOException e) {
+                        selectionKey.cancel();
+                        continue;
+                    }
+                }
+            }
+        }
+        lock = false;
+    }
+
     /**
      * 向通道中写数据
+     * 
+     * @throws IOException
      */
-    private static void writeDataToSocket(SelectionKey sk) throws IOException {
+    private static void writeDataToSocket(SelectionKey sk, String str) throws IOException {
+        // 把消息其他（一个）玩家
+        SocketChannel sc = (SocketChannel) sk.channel();
+        // 清空缓存
+        byteBuffer.clear();
+        // System.out.println(str);
+        byteBuffer = ByteBuffer.allocate(str.length());
+        byteBuffer.put(str.getBytes());
+        byteBuffer.flip(); // 读缓冲区的数据之前一定要先反转(flip)
 
-        /* 把要传输的playscreen装入buffer */
-        // byteBuffer = objectToBuffer(playscreen);
-        /*
-         * SocketChannel sc = (SocketChannel) sk.channel();
-         * 
-         * 写进通道
-         * while (byteBuffer.hasRemaining()) {
-         * sc.write(byteBuffer);
-         * }
-         */
+        // 从缓冲区读出来写进通道
+        sc.write(byteBuffer);
+        byteBuffer.clear();
     }
 
     /**
      * 从通道中读取数据
      */
-    private static void readDataFromSocket(SelectionKey sk) throws IOException {
+    private static void readDataFromSocket(SelectionKey sk, String str) throws IOException {
         SocketChannel sc = (SocketChannel) sk.channel();
         byteBuffer.clear();
         ArrayList<Byte> list = new ArrayList<>();
@@ -231,11 +269,16 @@ public class SelectorServer extends JFrame implements KeyListener {
                         for (int i = 0; i < bytes.length; i++) {
                             bytes[i] = list.get(i);
                         }
+                        // 收到消息
                         String s = (new String(bytes)).trim();
                         String[] couple = s.split(" ");
-                        System.out.println(s);
+                        System.out.println("服务端收到：" + s);
 
-                        operation(Integer.parseInt(couple[0]),Integer.parseInt(couple[1]));
+                        // 写给所有客户端
+                        writeToAll(s);
+
+                        // 在自己这里操作
+                        operation(Integer.parseInt(couple[0]), Integer.parseInt(couple[1]));
 
                     }
 

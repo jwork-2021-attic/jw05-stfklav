@@ -19,7 +19,7 @@ import com.nju.roguelike.screen.*;
 public class Client extends JFrame implements KeyListener {
 
     private AsciiPanel terminal;
-    private Screen screen;
+    private static Screen screen;
     private Timer timer;// 计时器，固定频率刷新
     public static final int REFRESH_LAG = 100;
 
@@ -29,7 +29,7 @@ public class Client extends JFrame implements KeyListener {
     private boolean isConnected = false;
     private static boolean start = false;
 
-    int player_number = 1; // 玩家编号
+    static int player_number = 1; // 玩家编号
 
     public Client(int mseconds) {
         super();
@@ -38,7 +38,7 @@ public class Client extends JFrame implements KeyListener {
         pack();
         // screen = new StartScreen().reload();
         screen = new PlayScreen(3, 3, 2, 2, 0);
-        PlayScreen playscreen = (PlayScreen)screen;
+        PlayScreen playscreen = (PlayScreen) screen;
         playscreen.setPlayer(player_number);
 
         addKeyListener(this);
@@ -90,22 +90,37 @@ public class Client extends JFrame implements KeyListener {
             // 把玩家号和要做的动作发给服务器
             byteBuffer.clear();
             String str = Integer.toString(player_number) + " " + Integer.toString(key.getKeyCode()) + " ";
-            System.out.println(str);
+            // System.out.println("客户端发送：" + str);
             byteBuffer = ByteBuffer.allocate(str.length());
             byteBuffer.put(str.getBytes());
             byteBuffer.flip(); // 读缓冲区的数据之前一定要先反转(flip)
             socketChannel.write(byteBuffer);
             byteBuffer.clear();
         } catch (IOException e) {
-           e.printStackTrace();
+            e.printStackTrace();
         }
-        screen = screen.respondToUserInput(key);
+        // screen = screen.respondToUserInput(key);
 
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
         // TODO Auto-generated method stub
+
+    }
+
+    // 根据玩家号和操作
+    private static void operation(int player_number2, int keycode) {
+
+        // 切换到要求的玩家操作
+        PlayScreen playscreen = (PlayScreen) screen;
+        playscreen.setPlayer(player_number2);
+
+        Button a = new Button("click");
+        screen = screen.respondToUserInput(new KeyEvent(a, 1, 20, 1, keycode, 'a'));
+
+        // 切换回自己的
+        playscreen.setPlayer(player_number);
 
     }
 
@@ -129,17 +144,27 @@ public class Client extends JFrame implements KeyListener {
                     bytes[i] = list.get(i);
                 }
                 String s = (new String(bytes)).trim();
+                if (s.length() > 0)
+                    System.out.println("客户端收到：" + s);
                 if (!s.isEmpty()) {
                     if ("start".equals(s)) {
                         start = true;
+                        // 模拟按空格键
+                        Button a = new Button("start");
+                        screen = screen.respondToUserInput(new KeyEvent(a, 1, 20, 1, KeyEvent.VK_SPACE, 'a'));
+
                     } else if ("stop".equals(s)) {
                         start = false;
+                        Button a = new Button("stop");
+                        screen = screen.respondToUserInput(new KeyEvent(a, 1, 20, 1, KeyEvent.VK_SPACE, 'a'));
+                    } else {
+                        // 执行一些动作
+                        String[] couple = s.split(" ");
+
+                        // 在自己这里操作
+                        operation(Integer.parseInt(couple[0]), Integer.parseInt(couple[1]));
                     }
-                    // 模拟按空格键
-                    // robot.keyPress(KeyEvent.VK_SPACE);
-                    Button a = new Button("click");
-                    screen = screen.respondToUserInput(new KeyEvent(a, 1, 20, 1, KeyEvent.VK_SPACE, 'a'));
-                    System.out.println("客户端收到：" + s);
+
                 }
             }
         } catch (IOException e) {

@@ -74,7 +74,7 @@ public class World implements Serializable {
             x = 0;
             y = 0;
             do {
-                x = (x + 1) % this.width;
+                x = (x + 3) % this.width;
             } while (!tile(x, y).isGround() || this.creature(x, y) != null);
         } else if (creature.type() == CreatureType.PLAYER) {
             x = this.width / 2;

@@ -37,7 +37,6 @@ public class Creature implements Runnable, Serializable {
         this.x = x;
     }
 
-
     public int x() {
         return x;
     }
@@ -45,7 +44,6 @@ public class Creature implements Runnable, Serializable {
     public void setY(int y) {
         this.y = y;
     }
-
 
     public int y() {
         return y;
@@ -176,7 +174,7 @@ public class Creature implements Runnable, Serializable {
     // 攻击别人
     public void attack(Creature other) {
         int damage = Math.max(0, this.attackValue() - other.defenseValue());
-        damage = (int) (Math.random() * damage) + 1; // Math.random()生成0~1之间的随机小数
+        damage = (int) (damage / 2) + 1; // Math.random()生成0~1之间的随机小数
 
         if (other.beattacked(this, damage)) {
             this.notify("You attack the '%s' for %d damage.", other.glyph, damage);

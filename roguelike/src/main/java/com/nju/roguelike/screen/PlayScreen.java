@@ -73,7 +73,15 @@ public class PlayScreen implements Screen, Serializable {
         // 默认拿第一个玩家
         player = player_1;
 
-        new Timer().schedule(new TimerTask() {
+        // 怪物写死
+        for(int i = 0; i < MONSTER_NUMBER; i++){
+            Creature m = creatureFactory.newMonster(player_1);
+            m.setStatus(gameStatus);
+            exec.execute(m);
+        }
+
+
+        /*new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
                 // 限制屏幕上剩余怪物数量
@@ -87,7 +95,7 @@ public class PlayScreen implements Screen, Serializable {
             }
 
         }, 0, 5000); // 一开始就不等待，之后每五秒检查一次
-        // exec.shutdown();
+        // exec.shutdown();*/
 
         for (int i = 0; i < FUNGUS_NUMBER; i++) {
             creatureFactory.newFungus();
@@ -332,8 +340,11 @@ public class PlayScreen implements Screen, Serializable {
                     player.setStatus(gameStatus);
                 }
                     break;
-                default:
+                default:{
+                    player.setStatus(gameStatus);
                     player.setKeyEvent(key.getKeyCode());
+                   // System.out.println("Tht keycode: "+key.getKeyCode());
+                }
                     break;
             }
         }
