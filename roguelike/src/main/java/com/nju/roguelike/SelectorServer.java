@@ -148,7 +148,7 @@ public class SelectorServer extends JFrame implements KeyListener {
      * @throws IOException
      */
     private static void writeDataToSocket(SelectionKey sk, String str) throws IOException {
-        // 把消息其他（一个）玩家
+        // 把消息发给其他（一个）玩家
         SocketChannel sc = (SocketChannel) sk.channel();
         // 清空缓存
         byteBuffer.clear();
